@@ -1,7 +1,7 @@
 # blockchain-developer-bootcamp-final-project
 ## "Sign up" project
 ### The problem
-Recently I wanted to sign up my kid for a school event with limited number of participants. Unfortunately the sign up process was a kind of "first come, first served". Unfortunately by the time I heard about the event, all the places were booked.
+Recently I wanted to sign up my kid for a school event with limited number of participants. The sign up process was a kind of "first come, first served". Unfortunately by the time I heard about the event, all the places were booked.
 ### The solution
 My idea is to create a web site where people can register for an event. It should be transparent how many spots are available and what's the due date for registration. After the due date, the application automatically and randomly chooses who got successfully signed up.
 #### Example
