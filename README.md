@@ -10,3 +10,18 @@ My idea is to create a web site where people can register for an event. It shoul
 3. People get registered for the event and wait for the due date. Let's say there are 22 people who registered and wait.
 4. At the due date, the application randomly chooses among the registrants, 10 lucky ones who got signed up.
 5. The result of sign up proess is avaiable on the event site.
+
+## Client
+### Pre-requisites
+```
+cd client
+npm i web3 --save
+npm i lite-server --save-dev
+npm i jquery
+npm i bootstrap
+```
+### Start locally
+```
+cd client
+npm run dev-server
+```
