@@ -11,20 +11,57 @@ My idea is to create a web site where people can register for an event. It shoul
 4. At the due date, the application randomly chooses among the registrants, 10 lucky ones who got signed up.
 5. The result of sign up proess is avaiable on the event site.
 
-## Client
+## Development - UI
 ### Pre-requisites
+Install [heroku-cli](https://devcenter.heroku.com/articles/heroku-cli)
+
+Install node modules
+```
+cd bin
+./install_modules.sh
+```
+
+Copy UI modules (only in case bootstrap, jquery or web3 version is changed in package.json)
+```
+cd bin
+./copy_ui_modules.sh
+```
+
+### Run locally
 ```
 cd client
-npm i web3 --save
-npm i jquery --save
-npm i bootstrap --save
-npm i ejs --save
-npm i express --save
-npm i got --save-dev
-npm i tape --save-dev
+heroku local web
 ```
-### Start locally
+
+### Deploy to Heroku
+Create and configure the app
 ```
-cd client
-npm run dev-server
+APP_NAME=<your app name here>
+
+heroku login
+
+heroku create -a $APP_NAME --region eu
+
+git remote rm heroku
+git remote add heroku https://git.heroku.com/${APP_NAME}.git
+
+# Add build pack for subdir nodejs app located in client directory
+heroku buildpacks:clear
+heroku buildpacks:set https://github.com/timanovsky/subdir-heroku-buildpack
+heroku buildpacks:add heroku/nodejs
+heroku config:set PROJECT_PATH=client
+```
+
+Deploy app
+```
+# From development branch named html 
+git push heroku html:main
+
+# From main branch
+git push heroku main
+```
+
+Check logs
+```
+heroku logs --tail
 ```
