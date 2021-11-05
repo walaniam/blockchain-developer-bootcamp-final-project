@@ -1,21 +1,36 @@
 {
-  "name": "client",
+  "name": "sign-me-up-dapp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev-server": "lite-server"
-  },
-  "keywords": [],
   "author": "Mariusz Walania",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^3.4.1",
-    "jquery": "^3.6.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "jquery": "^2.2.4",
     "web3": "^1.6.0"
   },
   "devDependencies": {
-    "lite-server": "^2.6.1"
-  }
+    "got": "^11.8.2",
+    "tape": "^4.14.0"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/walaniam/blockchain-developer-bootcamp-final-project"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express",
+    "web3"
+  ]
 }

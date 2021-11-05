@@ -16,9 +16,12 @@ My idea is to create a web site where people can register for an event. It shoul
 ```
 cd client
 npm i web3 --save
-npm i lite-server --save-dev
-npm i jquery
-npm i bootstrap
+npm i jquery --save
+npm i bootstrap --save
+npm i ejs --save
+npm i express --save
+npm i got --save-dev
+npm i tape --save-dev
 ```
 ### Start locally
 ```
