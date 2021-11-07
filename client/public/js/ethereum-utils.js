@@ -29,6 +29,7 @@ const getWeb3 = () => {
       data.abi,
       deployedNetwork && deployedNetwork.address
     );
+    signMeUp.setProvider(window.ethereum)
     return signMeUp;
   };
   

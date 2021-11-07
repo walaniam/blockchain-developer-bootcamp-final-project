@@ -1,6 +1,9 @@
 
+const ssAddress = '0x5D7B7F3e92a95C2A901D067C8443C3DF3caEdE17';
+
 const showStoredValue = async (contract) => {
-  let value = await contract.methods.get().call();
+  var value = await contract.methods.get().call();
+  console.log("Fetched stored value: " + value);
   $("#ctrt-value").html(value);
 };
 
