@@ -3,7 +3,7 @@ pragma solidity >=0.5.16 <0.9.0;
 
 contract SignMeUp {
   
-  uint storedData;
+  uint storedData = 44;
 
   function set(uint x) public {
     storedData = x;
