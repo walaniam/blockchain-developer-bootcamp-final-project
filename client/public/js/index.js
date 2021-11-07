@@ -1,6 +1,3 @@
-
-const ssAddress = '0x5D7B7F3e92a95C2A901D067C8443C3DF3caEdE17';
-
 const showStoredValue = async (contract) => {
   var value = await contract.methods.get().call();
   console.log("Fetched stored value: " + value);
@@ -10,8 +7,22 @@ const showStoredValue = async (contract) => {
 async function loadApplication() {
   const web3 = await getWeb3();
   // const accounts = await web3.eth.getAccounts();
-  const contract = await getContract(web3);
-  showStoredValue(contract);
+  // const contract = await getContract(web3);
+  // showStoredValue(contract);
+
+  const data = await $.getJSON("./contracts/SignMeUp.json");
+
+  const netId = await web3.eth.net.getId();
+  const deployedNetwork = data.networks[netId];
+  console.log('Network address: ' + deployedNetwork.address);
+
+  const signMeUp = new web3.eth.Contract(
+    data.abi,
+    deployedNetwork && deployedNetwork.address
+  );
+  signMeUp.setProvider(window.ethereum);
+
+  showStoredValue(signMeUp);
 }
 
 loadApplication();
