@@ -11,6 +11,18 @@ My idea is to create a web site where people can register for an event. It shoul
 4. At the due date, the application randomly chooses among the registrants, 10 lucky ones who got signed up.
 5. The result of sign up proess is avaiable on the event site.
 
+## Development - Contracts
+###
+Start a local development blockchain
+```
+truffle develop
+```
+
+Migrate the contract
+```
+truffle migrate --network develop
+```
+
 ## Development - UI
 ### Pre-requisites
 Install [heroku-cli](https://devcenter.heroku.com/articles/heroku-cli)
