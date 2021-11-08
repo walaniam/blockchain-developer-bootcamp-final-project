@@ -1,7 +1,7 @@
 #!/bin/bash
 
 current_dir=$(pwd)
-cd ../client
+cd client
 
 mkdir -p public/js
 mkdir -p public/stylesheets/bootstrap
