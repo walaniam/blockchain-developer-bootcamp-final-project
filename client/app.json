@@ -1,8 +1,8 @@
 {
-  "name": "Start on Heroku: Node.js",
+  "name": "Sign Me Up - Bootcamp Dapp",
   "description": "A barebones Node.js app using Express 4",
-  "repository": "https://github.com/heroku/node-js-getting-started",
-  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/main/public/node.svg",
-  "keywords": ["node", "express", "heroku"],
+  "repository": "https://github.com/walaniam/blockchain-developer-bootcamp-final-project",
+  "logo": "",
+  "keywords": ["node", "express", "heroku", "web3", "ethereum"],
   "image": "heroku/nodejs"
 }
