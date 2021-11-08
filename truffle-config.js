@@ -20,7 +20,8 @@ module.exports = {
           process.env.INFURA_URL          
           )
       },
-      network_id: 3
+      network_id: 3,
+      from: '0x1E779e81d7AB2441317E5acc60546b925DCAb923' // bootcamp2
     }
   },
   compilers: {
