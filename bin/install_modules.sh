@@ -11,5 +11,7 @@ npm i express --save
 npm i cool-ascii-faces --save
 npm i got --save-dev
 npm i tape --save-dev
+npm i @truffle/hdwallet-provider --save
+npm i dotenv --save
 
 cd $current_dir

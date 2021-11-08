@@ -34,6 +34,10 @@ heroku local web
 ```
 
 ### Deploy to Heroku
+
+This applications uses https://elements.heroku.com/buildpacks/timanovsky/subdir-heroku-buildpack build pack.
+UI is built basing on https://devcenter.heroku.com/articles/getting-started-with-nodejs sample application.  
+
 Create and configure the app
 ```
 APP_NAME=<your app name here>
