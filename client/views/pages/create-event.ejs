@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include ("../partials/header.ejs") %>
+  <script>
+    $(document).ready(function() {
+      $("#create-event-form").submit(function(e) {
+        e.preventDefault();
+        alert("Todo - call contract");
+        window.location = "/";
+      });
+    });
+  </script>
+</head>
+
+<body>
+
+  <%- include ("../partials/nav.ejs") %>
+
+<div class="container">
+  <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
+  <div id="ctrt-value" class="alert alert-info text-center" role="alert"></div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+      <form id="create-event-form" action="">
+        <label for="title">Event title</label><br/>
+        <input type="text" id="title" name="title"/><br/><br/>
+        <label for="spots">Event available spots</label><br/>
+        <input type="text" id="spots" name="spots"/><br/>
+        <label for="due-date">Due date</label><br/>
+        <input type="datetime-local" id="due-date" name="due-date"/><br/>
+        <input type="submit" value="Create event"/><br/>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <!-- <h3><span class="glyphicon glyphicon-link"></span> Something else</h3>
+      <ul>
+        <li>Ipsum 1</li>
+        <li>Ipsum 2</li>
+      </ul> -->
+    </div>
+  </div> <!-- row -->
+   <div class="alert alert-info text-center" role="alert">
+    Footer
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,3 +1,6 @@
+
+
+
 const showStoredValue = async (contract) => {
   var value = await contract.methods.get().call();
   console.log("Fetched stored value: " + value);
