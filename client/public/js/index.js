@@ -1,31 +1,39 @@
 
-
-
-const showStoredValue = async (contract) => {
+async function showStoredValue(contract) {
   var value = await contract.methods.get().call();
   console.log("Fetched stored value: " + value);
   $("#ctrt-value").html(value);
 };
 
-async function loadApplication() {
-  const web3 = await getWeb3();
-  // const accounts = await web3.eth.getAccounts();
-  // const contract = await getContract(web3);
-  // showStoredValue(contract);
+async function getSignUpEntries() {
+  let web3 = await getWeb3();
+  let contract = await getContract(web3);
+  var count = await contract.methods.getEntriesCount().call();
+  
+  for (let i = 0; i < count; i++) {
+    var value = await contract.methods.entries(i).call();
+    try {
+      console.log("dupa");
+    console.log("Entry " + JSON.stringify(value));
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
-  const data = await $.getJSON("./contracts/SignMeUp.json");
+  console.log("Entries count: " + count);
 
-  const netId = await web3.eth.net.getId();
-  const deployedNetwork = data.networks[netId];
-  console.log('Network address: ' + deployedNetwork.address);
+  $("#ctrt-value").html("Entries count: " + count);
+};
 
-  const signMeUp = new web3.eth.Contract(
-    data.abi,
-    deployedNetwork && deployedNetwork.address
-  );
-  signMeUp.setProvider(window.ethereum);
-
-  showStoredValue(signMeUp);
+async function verifyNetworkConnection() {
+  try {
+    let web3 = await getWeb3();
+    let contract = await getContract(web3);
+    // showStoredValue(contract);
+  } catch(err) {
+    $('#mm-status').css('color', 'red').html(err);
+  }
 }
 
-loadApplication();
+verifyNetworkConnection();
+getSignUpEntries();

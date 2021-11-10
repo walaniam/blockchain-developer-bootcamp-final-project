@@ -20,6 +20,16 @@ contract SignMeUp {
     State state;
   }
 
+  constructor() public {
+    // Test entries
+    createNewSignUpEntry("Event 1", 10, 10000);
+    createNewSignUpEntry("Event 2", 12, 100000);
+  }
+
+  function getEntriesCount() public view returns(uint256) {
+    return entries.length;
+  }
+
   function createNewSignUpEntry(string memory _title, uint _totalSpots, uint _registrationDueDate)
     public
     returns (uint256) {
