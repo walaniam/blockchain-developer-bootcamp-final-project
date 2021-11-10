@@ -3,6 +3,12 @@
 <head>
   <%- include ("../partials/header.ejs") %>
   <script>
+
+    // Disable submitting with Enter key
+    $(document).on("keydown", "form", function(event) {
+        return event.key != "Enter";
+    });
+
     $(document).ready(function() {
       $("#create-event-form").submit(function(e) {
         e.preventDefault();
@@ -19,18 +25,28 @@
 
 <div class="container">
   <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
-  <div id="ctrt-value" class="alert alert-info text-center" role="alert"></div>
   <hr>
   <div class="row">
     <div class="col-md-6">
-      <form id="create-event-form" action="">
-        <label for="title">Event title</label><br/>
-        <input type="text" id="title" name="title"/><br/><br/>
-        <label for="spots">Event available spots</label><br/>
-        <input type="text" id="spots" name="spots"/><br/>
-        <label for="due-date">Due date</label><br/>
-        <input type="datetime-local" id="due-date" name="due-date"/><br/>
-        <input type="submit" value="Create event"/><br/>
+      <div class="text-left">Create New Event</div>
+      <form id="create-event-form" style="margin-top: 15px; margin-bottom: 15px;" action="">
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="title-addon">Title</span>
+          <input type="text" id="title" name="title" class="form-control" aria-describedby="title-addon"/>
+        </div>
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="spots-addon">Spots</span>
+          <input type="text" id="spots" name="spots" class="form-control" placeholder="10" aria-describedby="spots-addon"/>
+        </div>
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="due-date-addon">Due Date</span>
+          <input type="datetime-local" id="due-date" name="due-date" class="form-control" aria-describedby="due-date-addon"/>
+        </div>        
+        <div class="btn-group btn-group-justified" role="group" aria-label="..." style="margin-bottom: 10px;">
+          <div class="btn-group" role="group">
+            <input type="submit" class="btn btn-default" value="Submit">
+          </div>
+        </div>
       </form>
     </div>
     <div class="col-md-6">

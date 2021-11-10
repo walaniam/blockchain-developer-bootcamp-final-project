@@ -43,7 +43,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -98,7 +99,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_title\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_totalSpots\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_registrationDueDate\",\"type\":\"uint256\"}],\"name\":\"createNewSignUpEntry\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"entries\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"organizer\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"totalSpots\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"registrationDueDate\",\"type\":\"uint256\"},{\"internalType\":\"enum SignMeUp.State\",\"name\":\"state\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"get\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"x\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/SignMeUp.sol\":\"SignMeUp\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/SignMeUp.sol\":{\"keccak256\":\"0x904f010b4a21026af62b5db096acba8e5ff6a9618c0d17666015d73e57dd9756\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://667fd2209557057580ed316d4134bfb4cc84d84b161e695d12bc40151dba73bb\",\"dweb:/ipfs/QmS9qeVLSUbxnqVMWEp7sDe1PAhHZxnqReAVqm9msp5oWw\"]}},\"version\":1}",
@@ -7038,11 +7040,12 @@
       "events": {},
       "links": {},
       "address": "0x5D7B7F3e92a95C2A901D067C8443C3DF3caEdE17",
-      "transactionHash": "0x5e1d59188b2773c8d29664b19e58412db7cebc12d2b654b6c0ad703288f1a0a1"
+      "transactionHash": "0xf832352eacb3e0fb2ed6a64c611e655a16101c00f4baedc932df1eab365bc8c7"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-09T21:03:59.343Z",
+  "updatedAt": "2021-11-10T14:18:11.894Z",
+  "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
     "methods": {},
