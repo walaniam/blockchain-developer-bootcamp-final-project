@@ -20,13 +20,17 @@
         let spots = $('#spots').val();
         let dueDate = timestampOf($('#due-date').val());
         let eventDate = timestampOf($('#event-date').val());
-        if (confirm("Create event: " + title)) {
+        if (eventDate < dueDate) {
+          alert("Registration due date must be before event date");
+        } else if (confirm("Create event? Title: " + title)) {
           console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
-          // getActiveEventsCount().then(r => console.log(r));
           createEvent(title, spots, dueDate, eventDate)
-            .then(result => {
-              alert('Event created with id: ' + result);
-              window.location = "/";
+            .then(id => {
+              alert("Event created: " + id);
+              window.location = "/event-details?id=" + id;
+            })
+            .catch(err => {
+              alert(err);
             });
         }
       });
@@ -78,9 +82,9 @@
       </ul> -->
     </div>
   </div> <!-- row -->
-   <div class="alert alert-info text-center" role="alert">
-    Footer
-  </div>
+
+  <%- include ("../partials/footer.ejs") %>
+
 </div>
 
 </body>

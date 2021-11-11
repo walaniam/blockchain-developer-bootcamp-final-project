@@ -1,4 +1,5 @@
-async function getWeb3() {
+
+async function detectMetamask() {
   return new Promise((resolve, reject) => {
     window.addEventListener("load", async () => {
       if (window.ethereum) {

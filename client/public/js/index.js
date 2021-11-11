@@ -1,33 +1,27 @@
 
-// async function showStoredValue(contract) {
-//   var value = await contract.methods.get().call();
-//   console.log("Fetched stored value: " + value);
-//   $("#ctrt-value").html(value);
-//   $("#ctrt-value").html("Entries count: " + count);
-// };
-
+////// Event organizer functions //////
 async function createEvent(title, spots, registrationDate, eventDate) {
-  let web3 = await getWeb3();
-  let contract = await getContract(web3);
+  console.log('inside create');
+  let contract = await getContract(new Web3(window.ethereum));
   console.log('before send');
-  let entryId = await contract.methods
+  let transaction = await contract.methods
     .createNewSignUpEntry(title, spots, registrationDate, eventDate)
     .send({from: ethereum.selectedAddress});
+  let entryId = transaction.events['SignMeUpEntryCreated'].returnValues['id'];
   console.log("Event created, id=" + entryId);
   return entryId;
 }
 
+////// Read functions ///////
 async function getActiveEventsCount() {
-  let web3 = await getWeb3();
-  let contract = await getContract(web3);
+  let contract = await getContract(new Web3(window.ethereum));
   var count = await contract.methods.getEntriesCount().call();
   console.log("Entries count: " + count);
   return count;
 }
 
 async function getEventById(eventId) {
-  let web3 = await getWeb3();
-  let contract = await getContract(web3);
+  let contract = await getContract(new Web3(window.ethereum));
   let entry = await contract.methods.entries(eventId).call();
   console.log("got event for id=" + eventId + ", event=" + entry);
   return entry;
@@ -35,13 +29,11 @@ async function getEventById(eventId) {
 
 async function showActiveEvents() {
 
-  let web3 = await getWeb3();
-  let contract = await getContract(web3);
+  let contract = await getContract(new Web3(window.ethereum));
   let count = await contract.methods.getEntriesCount().call();
   
   let container = $('#active-events');
 
-  // TODO format date
   for (let i = 0; i < count; i++) {
     var entry = await contract.methods.entries(i).call();
     let row = `
@@ -49,7 +41,8 @@ async function showActiveEvents() {
         <div class="col-md-6">
           <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
           <span>Available spots: ${entry.spots}</span><br/>
-          <span>Registration due date: ${entry.registrationDueDate}</span><br/>
+          <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
+          <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
           <button>Register</button>
         </div>
         <hr/>
@@ -62,9 +55,10 @@ async function showActiveEvents() {
   }
 };
 
-async function verifyNetworkConnection() {
+////// Detect metamask //////
+async function detectNetworkConnection() {
   try {
-    let web3 = await getWeb3();
+    let web3 = await detectMetamask();
     let contract = await getContract(web3);
     var count = await contract.methods.getEntriesCount().call();
   } catch(err) {
@@ -72,4 +66,4 @@ async function verifyNetworkConnection() {
   }
 }
 
-verifyNetworkConnection();
+detectNetworkConnection();

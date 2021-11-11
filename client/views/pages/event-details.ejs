@@ -4,8 +4,8 @@
   <%- include ("../partials/header.ejs") %>
   <script>
     $(document).ready(function() {
-      console.log("Details...");
       var id = getUrlParam('id');
+      console.log("GEtting event details with id: " + id);
       getEventById(id)
         .then(entry => $("#entry-details").html("Event title: " + entry.title));
     });
@@ -18,16 +18,11 @@
 
 <div class="container">
   <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
-  <div id="ctrt-value" class="alert alert-info text-center" role="alert"></div>
   <hr>
-  <div class="row">
-    <div class="col-md-6">
-      <div class="text-left">Event Details</div>
-      <div id="entry-details"></div>
-  </div> <!-- row -->
-   <div class="alert alert-info text-center" role="alert">
-    Footer
-  </div>
+  <div id="active-events"></div>
+
+  <%- include ("../partials/footer.ejs") %>
+
 </div>
 
 </body>

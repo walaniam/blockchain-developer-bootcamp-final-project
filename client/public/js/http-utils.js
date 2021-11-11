@@ -15,7 +15,17 @@ function getUrlParam(sParam) {
 };
 
 function timestampOf(localDateTime) {
-    return new Date(localDateTime).getTime();
+    return new Date(localDateTime).valueOf();
+}
+
+function formatDateOf(timestamp) {
+    console.log("timestamp: " + timestamp);
+    try {
+        return timestamp; // TODO
+        //return new Date(timestamp).toLocaleString();
+    } catch(err) {
+        console.log(err);
+    }
 }
 
 function defaultDateTime(plusDays) {
