@@ -1,52 +1,66 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.16 <0.9.0;
+pragma solidity ^0.8.0;
 
-contract SignMeUp {
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract SignMeUp is ERC20, Ownable {
 
   SignUpEntry[] public entries;
-  
-  // mapping (address => SignUpEntry[]) private organizerEntries;
 
-  enum State {Active, Expired}
+  /**
+   * State enums
+   */
+  enum State {Active, Closed}
+
+  /**
+   * Events
+   */
+  event SignMeUpEntryCreated(uint256 id);
 
   struct SignUpEntry {
     uint256 id;
     address organizer;
     string title;
-    uint totalSpots;
+    uint spots;
     uint registrationDueDate;
     // address[] registrants;
     // address[] participants;
     State state;
   }
 
-  constructor() public {
+  constructor() ERC20("SignMeUp", "SMU") {
     // Test entries
     createNewSignUpEntry("Event 1", 10, 10000);
     createNewSignUpEntry("Event 2", 12, 100000);
+    createNewSignUpEntry("Event 3", 23, 10000000);
   }
 
   function getEntriesCount() public view returns(uint256) {
     return entries.length;
   }
 
-  function createNewSignUpEntry(string memory _title, uint _totalSpots, uint _registrationDueDate)
+  function createNewSignUpEntry(string memory _title, uint _spots, uint _registrationDueDate)
     public
     returns (uint256) {
 
-    SignUpEntry memory entry = SignUpEntry({
-      id: nonSecureRandom(),
-      organizer: msg.sender,
-      title: _title,
-      totalSpots: _totalSpots,
-      registrationDueDate: _registrationDueDate,
-      state: State.Active
-    });
+      uint256 nextId = entries.length;
 
-    entries.push(entry);
+      SignUpEntry memory entry = SignUpEntry({
+        id: nextId,
+        organizer: msg.sender,
+        title: _title,
+        spots: _spots,
+        registrationDueDate: _registrationDueDate,
+        state: State.Active
+      });
 
-    return entry.id;
+      entries.push(entry);
+
+      emit SignMeUpEntryCreated(entry.id);
+      return entry.id;
   }
+
 
   // ### Utils ###
   // #############
@@ -56,17 +70,5 @@ contract SignMeUp {
       abi.encodePacked(block.timestamp, block.difficulty)
     ));
   }
-
   // ### Utils - end ###
-
-  // ##########################
-  // Simple storage
-  uint storedData = 44;
-  function set(uint x) public {
-    storedData = x;
-  }
-
-  function get() public view returns (uint) {
-    return storedData;
-  }
 }

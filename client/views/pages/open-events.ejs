@@ -3,8 +3,9 @@
 <head>
   <%- include ("../partials/header.ejs") %>
   <script>
-
-    
+    $(document).ready(function() {
+      showActiveEvents();
+    });
   </script>
 </head>
 
@@ -15,14 +16,9 @@
 <div class="container">
   <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
   <hr>
-  <div class="row">
-    <div class="col-md-6">
-      
-Open Events
-
-    </div>    
-  </div> <!-- row -->
-   <div class="alert alert-info text-center" role="alert">
+  <div id="active-events"></div>
+  
+  <div class="alert alert-info text-center" role="alert">
     Footer
   </div>
 </div>
