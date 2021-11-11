@@ -12,6 +12,11 @@ async function createEvent(title, spots, registrationDate, eventDate) {
   return entryId;
 }
 
+////// Registrant functions ///////
+async function registerForEvent(eventId) {
+  return eventId;
+}
+
 ////// Read functions ///////
 async function getActiveEventsCount() {
   let contract = await getContract(new Web3(window.ethereum));
@@ -43,7 +48,7 @@ async function showActiveEvents() {
           <span>Available spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          <button>Register</button>
+          <button id="register-button-${entry.id}">Register</button>
         </div>
         <hr/>
       </div>
@@ -51,9 +56,20 @@ async function showActiveEvents() {
 
     $(row).appendTo(container);
 
+    $('#register-button-' + entry.id).click(function() {
+      var eventId = $(this).attr('id').split('-')[2];
+      registerForEvent(eventId)
+        .then(result => {
+          alert("Registered: " + result);
+        })
+        .catch(err => {
+          alert(err);
+        });
+    });
+
     console.log("Entry " + JSON.stringify(entry));
   }
-};
+}
 
 ////// Detect metamask //////
 async function detectNetworkConnection() {
