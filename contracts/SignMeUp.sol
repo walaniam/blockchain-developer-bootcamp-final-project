@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract SignMeUp is ERC20, Ownable {
 
   SignUpEntry[] public entries;
+  mapping (uint => mapping(address => uint)) private eventRegistrationTimestamps;
 
   /**
    * State enums
@@ -17,6 +18,22 @@ contract SignMeUp is ERC20, Ownable {
    * Events
    */
   event SignMeUpEntryCreated(uint256 id);
+  event LogRegistered(uint256 id, address who, uint256 when);
+
+  /**
+   * Modifiers
+   */
+  modifier isActive(uint _eventId) {
+    SignUpEntry memory eventEntry = entries[_eventId];
+    require(eventEntry.state == State.Active && block.timestamp < eventEntry.registrationDueDate);
+    _;
+  }
+
+  modifier notYetRegistered(uint _eventId) {
+    mapping(address => uint) storage registrationTimestamps = eventRegistrationTimestamps[_eventId];
+    require(registrationTimestamps[msg.sender] == 0);
+    _;
+  }
 
   struct SignUpEntry {
     uint256 id;
@@ -25,8 +42,6 @@ contract SignMeUp is ERC20, Ownable {
     uint spots;
     uint registrationDueDate;
     uint eventDate;
-    // address[] registrants;
-    // address[] participants;
     State state;
   }
 
@@ -61,6 +76,19 @@ contract SignMeUp is ERC20, Ownable {
 
       emit SignMeUpEntryCreated(entry.id);
       return entry.id;
+  }
+
+  function registerForEvent(uint256 eventId)
+    public
+    isActive(eventId)
+    returns(bool) {
+
+    mapping(address => uint) storage registrationTimestamps = eventRegistrationTimestamps[eventId];
+    registrationTimestamps[msg.sender] = block.timestamp;
+
+    emit LogRegistered(eventId, msg.sender, block.timestamp);
+
+    return true;
   }
 
 
