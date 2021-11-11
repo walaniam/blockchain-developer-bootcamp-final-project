@@ -22,12 +22,12 @@
         let eventDate = timestampOf($('#event-date').val());
         if (confirm("Create event: " + title)) {
           console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
-          getActiveEventsCount().then(r => console.log(r));
-          // createEvent(title, spots, dueDate, eventDate)
-          //   .then(result => {
-          //     alert('Event created with id: ' + result);
-          //     window.location = "/";
-          //   });
+          // getActiveEventsCount().then(r => console.log(r));
+          createEvent(title, spots, dueDate, eventDate)
+            .then(result => {
+              alert('Event created with id: ' + result);
+              window.location = "/";
+            });
         }
       });
 
