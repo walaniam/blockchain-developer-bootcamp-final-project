@@ -13,3 +13,19 @@ function getUrlParam(sParam) {
   }
   return false;
 };
+
+function timestampOf(localDateTime) {
+    return new Date(localDateTime).getTime();
+}
+
+function defaultDateTime(plusDays) {
+    var now = new Date();
+    now.setDate(now.getDate() + plusDays);
+    now.setHours(12);
+    now.setMinutes(0);
+    now.setMilliseconds(0);
+    var offset = now.getTimezoneOffset() * 60000;
+    var adjustedDate = new Date(now.getTime() - offset);
+    var formattedDate = adjustedDate.toISOString().substring(0,16); // For minute precision
+    return formattedDate;
+}

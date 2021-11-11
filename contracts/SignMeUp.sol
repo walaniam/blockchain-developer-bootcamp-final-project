@@ -24,6 +24,7 @@ contract SignMeUp is ERC20, Ownable {
     string title;
     uint spots;
     uint registrationDueDate;
+    uint eventDate;
     // address[] registrants;
     // address[] participants;
     State state;
@@ -31,16 +32,16 @@ contract SignMeUp is ERC20, Ownable {
 
   constructor() ERC20("SignMeUp", "SMU") {
     // Test entries
-    createNewSignUpEntry("Event 1", 10, 10000);
-    createNewSignUpEntry("Event 2", 12, 100000);
-    createNewSignUpEntry("Event 3", 23, 10000000);
+    createNewSignUpEntry("Event 1", 10, 10000, 20000);
+    createNewSignUpEntry("Event 2", 12, 100000, 200000);
+    createNewSignUpEntry("Event 3", 23, 10000000, 20000000);
   }
 
   function getEntriesCount() public view returns(uint256) {
     return entries.length;
   }
 
-  function createNewSignUpEntry(string memory _title, uint _spots, uint _registrationDueDate)
+  function createNewSignUpEntry(string memory _title, uint _spots, uint _registrationDueDate, uint _eventDate)
     public
     returns (uint256) {
 
@@ -52,6 +53,7 @@ contract SignMeUp is ERC20, Ownable {
         title: _title,
         spots: _spots,
         registrationDueDate: _registrationDueDate,
+        eventDate: _eventDate,
         state: State.Active
       });
 

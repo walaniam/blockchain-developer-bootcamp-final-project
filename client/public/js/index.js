@@ -6,18 +6,30 @@
 //   $("#ctrt-value").html("Entries count: " + count);
 // };
 
+async function createEvent(title, spots, registrationDate, eventDate) {
+  let web3 = await getWeb3();
+  let contract = await getContract(web3);
+  console.log('before send');
+  let entryId = await contract.methods
+    .createNewSignUpEntry(title, spots, registrationDate, eventDate)
+    .send({from: ethereum.selectedAddress});
+  console.log("Event created, id=" + entryId);
+  return entryId;
+}
+
 async function getActiveEventsCount() {
   let web3 = await getWeb3();
   let contract = await getContract(web3);
   var count = await contract.methods.getEntriesCount().call();
   console.log("Entries count: " + count);
   return count;
-};
+}
 
 async function getEventById(eventId) {
   let web3 = await getWeb3();
   let contract = await getContract(web3);
   let entry = await contract.methods.entries(eventId).call();
+  console.log("got event for id=" + eventId + ", event=" + entry);
   return entry;
 }
 

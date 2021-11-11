@@ -10,11 +10,27 @@
     });
 
     $(document).ready(function() {
+
+      $('#due-date').val(defaultDateTime(1));
+      $('#event-date').val(defaultDateTime(3));
+
       $("#create-event-form").submit(function(e) {
         e.preventDefault();
-        alert("Todo - call contract");
-        window.location = "/";
+        let title = $('#title').val();
+        let spots = $('#spots').val();
+        let dueDate = timestampOf($('#due-date').val());
+        let eventDate = timestampOf($('#event-date').val());
+        if (confirm("Create event: " + title)) {
+          console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
+          getActiveEventsCount().then(r => console.log(r));
+          // createEvent(title, spots, dueDate, eventDate)
+          //   .then(result => {
+          //     alert('Event created with id: ' + result);
+          //     window.location = "/";
+          //   });
+        }
       });
+
     });
   </script>
 </head>
@@ -42,6 +58,10 @@
         <div class="input-group" style="margin-bottom: 10px;">
           <span class="input-group-addon" id="due-date-addon">Due Date</span>
           <input type="datetime-local" id="due-date" name="due-date" class="form-control" aria-describedby="due-date-addon"/>
+        </div>
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="event-date-addon">Event Date</span>
+          <input type="datetime-local" id="event-date" name="event-date" class="form-control" aria-describedby="event-date-addon"/>
         </div>        
         <div class="btn-group btn-group-justified" role="group" aria-label="..." style="margin-bottom: 10px;">
           <div class="btn-group" role="group">
