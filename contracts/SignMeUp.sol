@@ -1,15 +1,76 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.16 <0.9.0;
+pragma solidity ^0.8.0;
 
-contract SignMeUp {
-  
-  uint storedData = 44;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-  function set(uint x) public {
-    storedData = x;
+contract SignMeUp is ERC20, Ownable {
+
+  SignUpEntry[] public entries;
+
+  /**
+   * State enums
+   */
+  enum State {Active, Closed}
+
+  /**
+   * Events
+   */
+  event SignMeUpEntryCreated(uint256 id);
+
+  struct SignUpEntry {
+    uint256 id;
+    address organizer;
+    string title;
+    uint spots;
+    uint registrationDueDate;
+    uint eventDate;
+    // address[] registrants;
+    // address[] participants;
+    State state;
   }
 
-  function get() public view returns (uint) {
-    return storedData;
+  constructor() ERC20("SignMeUp", "SMU") {
+    // Test entries
+    createNewSignUpEntry("Event 1", 10, 10000, 20000);
+    createNewSignUpEntry("Event 2", 12, 100000, 200000);
+    createNewSignUpEntry("Event 3", 23, 10000000, 20000000);
   }
+
+  function getEntriesCount() public view returns(uint256) {
+    return entries.length;
+  }
+
+  function createNewSignUpEntry(string memory _title, uint _spots, uint _registrationDueDate, uint _eventDate)
+    public
+    returns (uint256) {
+
+      uint256 nextId = entries.length;
+
+      SignUpEntry memory entry = SignUpEntry({
+        id: nextId,
+        organizer: msg.sender,
+        title: _title,
+        spots: _spots,
+        registrationDueDate: _registrationDueDate,
+        eventDate: _eventDate,
+        state: State.Active
+      });
+
+      entries.push(entry);
+
+      emit SignMeUpEntryCreated(entry.id);
+      return entry.id;
+  }
+
+
+  // ### Utils ###
+  // #############
+
+  function nonSecureRandom() private view returns (uint256) {
+    return uint256(keccak256(
+      abi.encodePacked(block.timestamp, block.difficulty)
+    ));
+  }
+  // ### Utils - end ###
 }

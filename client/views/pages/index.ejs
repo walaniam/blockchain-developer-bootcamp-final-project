@@ -2,6 +2,12 @@
 <html>
 <head>
   <%- include ("../partials/header.ejs") %>
+  <script>
+    $(document).ready(function() {
+      getActiveEventsCount()
+        .then(result => $("#ctrt-value").html("Active events count: " + result));
+    });
+  </script>
 </head>
 
 <body>
@@ -12,8 +18,8 @@
   <div class="container">
     <h1 style="margin-top: -15px;">Sign Me Up</h1>
     <div style="margin-top: 15px;">
-      <a type="button" class="btn btn-lg btn-default"><span class="glyphicon glyphicon-flash"></span> Button 1</a>
-      <a type="button" class="btn btn-lg btn-primary"><span class="glyphicon glyphicon-download"></span> Button 2</a>
+      <a type="button" class="btn btn-lg btn-default" href="/create-event"><span class="glyphicon glyphicon-plus"></span> Create Event</a>
+      <a type="button" class="btn btn-lg btn-primary" href="/open-events"><span class="glyphicon glyphicon-ok"></span> Register</a>
     </div>
   </div>
 </div>
@@ -38,9 +44,9 @@
       </ul>
     </div>
   </div> <!-- row -->
-   <div class="alert alert-info text-center" role="alert">
-    Footer
-  </div>
+
+  <%- include ("../partials/footer.ejs") %>
+
 </div>
 
 </body>

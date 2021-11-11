@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include ("../partials/header.ejs") %>
+  <script>
+
+    // Disable submitting with Enter key
+    $(document).on("keydown", "form", function(event) {
+        return event.key != "Enter";
+    });
+
+    $(document).ready(function() {
+
+      $('#due-date').val(defaultDateTime(1));
+      $('#event-date').val(defaultDateTime(3));
+
+      $("#create-event-form").submit(function(e) {
+        e.preventDefault();
+        let title = $('#title').val();
+        let spots = $('#spots').val();
+        let dueDate = timestampOf($('#due-date').val());
+        let eventDate = timestampOf($('#event-date').val());
+        if (eventDate < dueDate) {
+          alert("Registration due date must be before event date");
+        } else if (confirm("Create event? Title: " + title)) {
+          console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
+          createEvent(title, spots, dueDate, eventDate)
+            .then(id => {
+              alert("Event created: " + id);
+              window.location = "/event-details?id=" + id;
+            })
+            .catch(err => {
+              alert(err);
+            });
+        }
+      });
+
+    });
+  </script>
+</head>
+
+<body>
+
+  <%- include ("../partials/nav.ejs") %>
+
+<div class="container">
+  <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
+  <div id="ctrt-value" class="alert alert-info text-center" role="alert"></div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="text-left">Create New Event</div>
+      <form id="create-event-form" style="margin-top: 15px; margin-bottom: 15px;" action="">
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="title-addon">Title</span>
+          <input type="text" id="title" name="title" class="form-control" aria-describedby="title-addon"/>
+        </div>
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="spots-addon">Spots</span>
+          <input type="text" id="spots" name="spots" class="form-control" placeholder="10" aria-describedby="spots-addon"/>
+        </div>
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="due-date-addon">Due Date</span>
+          <input type="datetime-local" id="due-date" name="due-date" class="form-control" aria-describedby="due-date-addon"/>
+        </div>
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="event-date-addon">Event Date</span>
+          <input type="datetime-local" id="event-date" name="event-date" class="form-control" aria-describedby="event-date-addon"/>
+        </div>        
+        <div class="btn-group btn-group-justified" role="group" aria-label="..." style="margin-bottom: 10px;">
+          <div class="btn-group" role="group">
+            <input type="submit" class="btn btn-default" value="Submit">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <!-- <h3><span class="glyphicon glyphicon-link"></span> Something else</h3>
+      <ul>
+        <li>Ipsum 1</li>
+        <li>Ipsum 2</li>
+      </ul> -->
+    </div>
+  </div> <!-- row -->
+
+  <%- include ("../partials/footer.ejs") %>
+
+</div>
+
+</body>
+</html>

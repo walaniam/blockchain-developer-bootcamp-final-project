@@ -4,6 +4,7 @@ current_dir=$(pwd)
 
 npm i @truffle/hdwallet-provider --save
 npm i dotenv --save
+npm i --save-dev @openzeppelin/contracts
 
 cd client
 npm i web3 --save
