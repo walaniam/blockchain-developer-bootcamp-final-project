@@ -4,11 +4,15 @@ async function createEvent(title, spots, registrationDate, eventDate) {
   console.log('inside create');
   let contract = await getContract(new Web3(window.ethereum));
   console.log('before send');
+  let price = await getNewEventPrice();
   let transaction = await contract.methods
-    .createNewSignUpEntry(title, spots, registrationDate, eventDate)
-    .send({from: ethereum.selectedAddress});
-  let entryId = transaction.events['SignMeUpEntryCreated'].returnValues['id'];
+    .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
+    .send({from: ethereum.selectedAddress, value: price});
+
+  //console.log("Transaction: " + JSON.stringify(transaction));
+  let entryId = transaction.events['LogEntryCreated'].returnValues['id'];
   console.log("Event created, id=" + entryId);
+  
   return entryId;
 }
 
@@ -18,6 +22,20 @@ async function registerForEvent(eventId) {
 }
 
 ////// Read functions ///////
+async function getContractOwner() {
+  let contract = await getContract(new Web3(window.ethereum));
+  var owner = await contract.methods.owner().call();
+  console.log("Owner: " + owner);
+  return owner;
+}
+
+async function getNewEventPrice() {
+  let contract = await getContract(new Web3(window.ethereum));
+  var price = await contract.methods.entryPriceWei().call();
+  console.log("Price: " + price);
+  return price;
+}
+
 async function getActiveEventsCount() {
   let contract = await getContract(new Web3(window.ethereum));
   var count = await contract.methods.getEntriesCount().call();

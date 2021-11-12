@@ -24,7 +24,7 @@ async function getContract(web3) {
   const netId = await web3.eth.net.getId();
   const deployedNetwork = data.networks[netId];
 
-  console.log('Contract address: ' + (deployedNetwork && deployedNetwork.address));
+  //console.log('Contract address: ' + (deployedNetwork && deployedNetwork.address));
 
   const signMeUp = new web3.eth.Contract(
     data.abi,
