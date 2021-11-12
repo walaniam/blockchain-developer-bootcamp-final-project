@@ -11,7 +11,8 @@ module.exports = {
     develop: {
       host: "127.0.0.1",
       port: 8545,
-      network_id: "*"
+      network_id: "*",
+      from: '0xfa5e6a302d3f8de3393d547c109867e8f497813f'
     },
     ropsten: {
       provider: function() {
