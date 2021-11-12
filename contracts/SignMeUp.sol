@@ -83,6 +83,10 @@ contract SignMeUp is ERC20, Ownable {
     newSignUpEventEntryOf("Event 3", 23, 10000000, 20000000);
   }
 
+  // fallback() external payable {
+  //   revert();
+  // }
+
   ////// Common functions //////
 
   function getEntriesCount() public view returns(uint256) {
@@ -98,7 +102,10 @@ contract SignMeUp is ERC20, Ownable {
 
       uint256 id = newSignUpEventEntryOf(_title, _spots, _registrationDueDate, _eventDate);
 
-      transferFrom(msg.sender, owner(), msg.value);
+      // TODO test it
+      address payable _owner = payable(owner());
+      _owner.transfer(msg.value);
+
       emit LogEntryCreated(id);
 
       return id;

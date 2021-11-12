@@ -8,8 +8,11 @@ async function createEvent(title, spots, registrationDate, eventDate) {
   let transaction = await contract.methods
     .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
     .send({from: ethereum.selectedAddress, value: price});
+
+  //console.log("Transaction: " + JSON.stringify(transaction));
   let entryId = transaction.events['LogEntryCreated'].returnValues['id'];
   console.log("Event created, id=" + entryId);
+  
   return entryId;
 }
 
