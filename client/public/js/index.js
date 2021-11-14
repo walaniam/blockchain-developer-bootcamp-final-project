@@ -19,7 +19,40 @@ async function createEvent(title, spots, registrationDate, eventDate) {
 
 ////// Registrant functions ///////
 async function registerForEvent(eventId) {
+  var contract = await getContract(new Web3(window.ethereum));
+  var transaction = await contract.methods.registerForEvent(eventId).send({from: ethereum.selectedAddress});
+  console.log(JSON.stringify(transaction));
   return eventId;
+}
+
+async function showRegistrantEvents(containerSelector) {
+
+  var container = $(containerSelector);
+  container.empty();
+
+  var contract = await getContract(new Web3(window.ethereum));
+  var entryIds = await contract.methods.getEntriesUserRegisteredFor().call({from: ethereum.selectedAddress});
+
+  console.log("Registrant events: " + JSON.stringify(entryIds));
+
+  for (let i = 0; i < entryIds.length; i++) {
+    _eventById(entryIds[i], contract).then(entry => {
+      var row = `
+        <div class="row">
+          <div class="col-md-6">
+            <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
+            <span>Available spots: ${entry.spots}</span><br/>
+            <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
+            <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
+          </div>
+          <hr/>
+        </div>
+      `;
+
+      $(row).appendTo(container);
+      
+    });
+  }
 }
 
 ////// Read functions ///////
@@ -115,7 +148,6 @@ async function showOrganizerEvents(containerSelector) {
           <span>Available spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          <button id="register-button-${entry.id}">Register</button>
         </div>
         <hr/>
       </div>

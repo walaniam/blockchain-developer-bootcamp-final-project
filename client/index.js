@@ -13,4 +13,9 @@ express()
   .get('/open-events', (req, res) => res.render('pages/open-events'))
   .get('/my-events', (req, res) => res.render('pages/my-events'))
   .get('/cool', (req, res) => res.send(cool()))
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+  .listen(PORT, (err) => {
+    if (err) {
+      return console.log(err);
+    }
+    console.log(`Listening on ${ PORT }`)
+  })

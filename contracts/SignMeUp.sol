@@ -60,6 +60,11 @@ contract SignMeUp is ERC20, Ownable {
     _;
   }
 
+  modifier isNotOrganizer(uint256 _eventId) {
+    require(entryOrganizer[_eventId] != msg.sender);
+    _;
+  }
+
   modifier paidEnough() {
     require(msg.value >= entryPriceWei);
     _;
@@ -182,15 +187,18 @@ contract SignMeUp is ERC20, Ownable {
     public
     isActive(_eventId)
     notYetRegistered(_eventId)
-    returns(bool) {
+    isNotOrganizer(_eventId)
+    returns(uint256) {
+
+    uint256 registrationTimestamp = block.timestamp;
 
     mapping(address => uint) storage registrationTimestamps = entryRegistrationTimestamps[_eventId];
-    registrationTimestamps[msg.sender] = block.timestamp;
+    registrationTimestamps[msg.sender] = registrationTimestamp;
     registrantEntries[msg.sender].push(_eventId);
 
-    emit LogRegistered(_eventId, msg.sender, block.timestamp);
+    emit LogRegistered(_eventId, msg.sender, registrationTimestamp);
 
-    return true;
+    return registrationTimestamp;
   }
 
   function getEntriesUserRegisteredFor() public view returns(uint256[] memory) {
