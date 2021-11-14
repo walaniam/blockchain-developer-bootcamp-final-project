@@ -19,7 +19,7 @@ function timestampOf(localDateTime) {
 }
 
 function formatDateOf(timestamp) {
-    console.log("timestamp: " + timestamp);
+    // console.log("timestamp: " + timestamp);
     try {
         return timestamp; // TODO
         //return new Date(timestamp).toLocaleString();

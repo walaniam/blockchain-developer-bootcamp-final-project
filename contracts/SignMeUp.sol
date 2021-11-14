@@ -23,10 +23,11 @@ contract SignMeUp is ERC20, Ownable {
   // Registrants for given SignUpEventEntry
   mapping (uint256 => address[]) private entryParticipants;
 
-  // Entries which Organizer created
-  mapping (address => uint256[]) private organizerEntries;
+  // Number of entries organized by user
+  mapping (address => uint256) private organizerEntriesCount;
+
   // Organizer of given SignUpEventEntry
-  mapping (uint256 => address) private entryOrganizer;
+  mapping (uint256 => address) public entryOrganizer;
 
   ////// Enums //////
   enum State {Active, Closed}
@@ -75,12 +76,17 @@ contract SignMeUp is ERC20, Ownable {
     State state;
   }
 
+  struct EntryList {
+    bool isPresent;
+    uint256 ids;
+  }
+
   constructor() ERC20("SignMeUp", "SMU") {
     entryPriceWei = 50_000 * 1_000_000_000;
     // Test entries
-    newSignUpEventEntryOf("Event 1", 10, 10000, 20000);
-    newSignUpEventEntryOf("Event 2", 12, 100000, 200000);
-    newSignUpEventEntryOf("Event 3", 23, 10000000, 20000000);
+    // newSignUpEventEntryOf("Event 1", 10, 10000, 20000);
+    // newSignUpEventEntryOf("Event 2", 12, 100000, 200000);
+    // newSignUpEventEntryOf("Event 3", 23, 10000000, 20000000);
   }
 
   // fallback() external payable {
@@ -93,18 +99,20 @@ contract SignMeUp is ERC20, Ownable {
     return entries.length;
   }
 
+// payable
+//     paidEnough()
+
   ////// Organizer functions
   function createNewSignUpEventEntry(string memory _title, uint _spots, uint _registrationDueDate, uint _eventDate)
     public
-    payable
-    paidEnough()
+    
     returns (uint256) {
 
       uint256 id = newSignUpEventEntryOf(_title, _spots, _registrationDueDate, _eventDate);
 
       // TODO test it
-      address payable _owner = payable(owner());
-      _owner.transfer(msg.value);
+      // address payable _owner = payable(owner());
+      // _owner.transfer(msg.value);
 
       emit LogEntryCreated(id);
 
@@ -116,31 +124,50 @@ contract SignMeUp is ERC20, Ownable {
     returns (uint256) {
 
       uint256 newId = nextEntryId();
+      address organizer = msg.sender;
 
       SignUpEventEntry memory entry = SignUpEventEntry({
         id: newId,
-        organizer: msg.sender,
+        organizer: organizer,
         title: _title,
         spots: _spots,
         registrationDueDate: _registrationDueDate,
         eventDate: _eventDate,
         state: State.Active
       });
+      
+      entryOrganizer[newId] = organizer;
+      organizerEntriesCount[organizer] += 1;
 
       entries.push(entry);
-      organizerEntries[msg.sender].push(newId);
-      entryOrganizer[newId] = msg.sender;
 
       return entry.id;
   }
 
   function nextEntryId() private view returns(uint256) {
-    // TODO maybe better id generator??
     return entries.length;
   }
 
-  function getOrganizerEntryIds() public view returns(uint256[] memory) {
-    return organizerEntries[msg.sender];
+  function getOrganizerEntriesCount() public view returns(uint256) {
+    return organizerEntriesCount[msg.sender];
+  }
+
+  function getOrganizerEntries()
+    public
+    view
+    returns(SignUpEventEntry[] memory) {
+
+    address organizer = msg.sender;
+
+    SignUpEventEntry[] memory result = new SignUpEventEntry[](organizerEntriesCount[organizer]);
+    uint256 targetIndex = 0;
+    for (uint256 i = 0; i < entries.length; i++) {
+      if (entries[i].organizer == organizer) {
+        result[targetIndex++] = entries[i];
+      }
+    }
+
+    return result;
   }
 
   function randomlyChooseEventParticipants(uint256 _eventId)
