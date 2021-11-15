@@ -13,7 +13,7 @@
 
       getNewEventPrice().then(price => {
         $('#event-price').html(
-            parseInt(price / 1_000_000_000).toLocaleString('en').replace(',', ' ')
+            parseInt(price / 1_000_000_000).toLocaleString('en').replaceAll(',', ' ')
           );
       });
 

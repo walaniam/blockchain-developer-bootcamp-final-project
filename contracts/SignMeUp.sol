@@ -87,10 +87,6 @@ contract SignMeUp is ERC20, Ownable {
     entryPriceWei = 50_000 * 1_000_000_000;
   }
 
-  // fallback() external payable {
-  //   revert();
-  // }
-
   ////// Common functions //////
 
   function getEntriesCount() public view returns(uint) {
