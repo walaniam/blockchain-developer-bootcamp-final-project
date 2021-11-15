@@ -14,15 +14,14 @@ function getUrlParam(sParam) {
   return false;
 };
 
-function timestampOf(localDateTime) {
-    return new Date(localDateTime).valueOf();
+function epochTimeOf(localDateTime) {
+    return new Date(localDateTime).getTime() / 1000;
 }
 
 function formatDateOf(timestamp) {
     // console.log("timestamp: " + timestamp);
     try {
-        return timestamp; // TODO
-        //return new Date(timestamp).toLocaleString();
+        return new Date(timestamp * 1000).toLocaleString();
     } catch(err) {
         console.log(err);
     }

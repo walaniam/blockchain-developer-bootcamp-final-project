@@ -1,20 +1,26 @@
 
 ////// Event organizer functions //////
 async function createEvent(title, spots, registrationDate, eventDate) {
-  console.log('inside create');
   let contract = await getContract(new Web3(window.ethereum));
-  console.log('before send');
   let price = await getNewEventPrice();
   let transaction = await contract.methods
     .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
     .send({from: ethereum.selectedAddress});
     // .send({from: ethereum.selectedAddress, value: price});
 
-  //console.log("Transaction: " + JSON.stringify(transaction));
+  console.log("Transaction: " + JSON.stringify(transaction));
   let entryId = transaction.events['LogEntryCreated'].returnValues['id'];
   console.log("Event created, id=" + entryId);
   
   return entryId;
+}
+
+async function closeEvent(eventId) {
+  let contract = await getContract(new Web3(window.ethereum));
+  let transaction = await contract.methods
+    .randomlyChooseEventParticipants(eventId)
+    .send({from: ethereum.selectedAddress});
+  console.log("Transaction: " + JSON.stringify(transaction));
 }
 
 ////// Registrant functions ///////
@@ -35,7 +41,7 @@ async function showRegistrantEvents(containerSelector) {
 
   console.log("Registrant events: " + JSON.stringify(entryIds));
 
-  for (let i = 0; i < entryIds.length; i++) {
+  for (let i = entryIds.length - 1; i >= 0; i--) {
     _eventById(entryIds[i], contract).then(entry => {
       var row = `
         <div class="row">
@@ -95,7 +101,7 @@ async function showActiveEvents() {
   
   let container = $('#active-events');
 
-  for (let i = 0; i < count; i++) {
+  for (let i = count - 1; i >= 0; i--) {
     var entry = await contract.methods.entries(i).call();
     let row = `
       <div class="row">
@@ -139,7 +145,7 @@ async function showOrganizerEvents(containerSelector) {
   console.log("Organizer events count:" + JSON.stringify(count));
   console.log("Organizer events: " + JSON.stringify(entries));
 
-  for (let i = 0; i < entries.length; i++) {
+  for (let i = entries.length - 1; i >= 0 ; i--) {
     var entry = entries[i];
     var row = `
       <div class="row">
@@ -148,12 +154,24 @@ async function showOrganizerEvents(containerSelector) {
           <span>Available spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
+          <button id="close-button-${entry.id}">Close registration</button>
         </div>
         <hr/>
       </div>
     `;
 
     $(row).appendTo(container);
+
+    $('#close-button-' + entry.id).click(function() {
+      var eventId = $(this).attr('id').split('-')[2];
+      closeEvent(eventId)
+        .then(result => {
+          alert("Registration closed: " + result);
+        })
+        .catch(err => {
+          alert(err);
+        });
+    });    
   }
 }
 

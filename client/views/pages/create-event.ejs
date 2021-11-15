@@ -18,8 +18,8 @@
         e.preventDefault();
         let title = $('#title').val();
         let spots = $('#spots').val();
-        let dueDate = timestampOf($('#due-date').val());
-        let eventDate = timestampOf($('#event-date').val());
+        let dueDate = epochTimeOf($('#due-date').val());
+        let eventDate = epochTimeOf($('#event-date').val());
         if (eventDate < dueDate) {
           alert("Registration due date must be before event date");
         } else if (confirm("Create event? Title: " + title)) {

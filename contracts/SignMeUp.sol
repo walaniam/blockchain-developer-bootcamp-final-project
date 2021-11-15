@@ -21,7 +21,10 @@ contract SignMeUp is ERC20, Ownable {
   mapping (address => uint256[]) private participantEntries;
 
   // Registrants for given SignUpEventEntry
-  mapping (uint256 => address[]) private entryParticipants;
+  mapping (uint256 => address[]) private entryRegistrants;
+
+  // Participants for given SignUpEventEntry
+  mapping (uint256 => address[]) private entryParticipants;  
 
   // Number of entries organized by user
   mapping (address => uint256) private organizerEntriesCount;
@@ -35,6 +38,7 @@ contract SignMeUp is ERC20, Ownable {
   ////// Events //////
   event LogEntryCreated(uint256 id);
   event LogRegistered(uint256 id, address who, uint256 when);
+  event LogEntryClosed(uint256 id, address[] participants);
 
   ////// Modifiers //////
   modifier isActive(uint256 _eventId) {
@@ -76,8 +80,8 @@ contract SignMeUp is ERC20, Ownable {
     address organizer;
     string title;
     uint256 spots;
-    uint256 registrationDueDate;
-    uint256 eventDate;
+    uint64 registrationDueDate;
+    uint64 eventDate;
     State state;
   }
 
@@ -108,45 +112,54 @@ contract SignMeUp is ERC20, Ownable {
 //     paidEnough()
 
   ////// Organizer functions
-  function createNewSignUpEventEntry(string memory _title, uint _spots, uint _registrationDueDate, uint _eventDate)
+  function createNewSignUpEventEntry(
+    string memory _title,
+    uint _spots,
+    uint64 _registrationDueDate,
+    uint64 _eventDate
+  )
     public
-    
-    returns (uint256) {
+    returns (uint256)
+  {
+    uint256 id = newSignUpEventEntryOf(_title, _spots, _registrationDueDate, _eventDate);
 
-      uint256 id = newSignUpEventEntryOf(_title, _spots, _registrationDueDate, _eventDate);
+    // TODO test it
+    // address payable _owner = payable(owner());
+    // _owner.transfer(msg.value);
 
-      // TODO test it
-      // address payable _owner = payable(owner());
-      // _owner.transfer(msg.value);
+    emit LogEntryCreated(id);
 
-      emit LogEntryCreated(id);
-
-      return id;
+    return id;
   }
 
-  function newSignUpEventEntryOf(string memory _title, uint _spots, uint _registrationDueDate, uint _eventDate)
+  function newSignUpEventEntryOf(
+    string memory _title,
+    uint _spots,
+    uint64 _registrationDueDate,
+    uint64 _eventDate
+  )
     private
-    returns (uint256) {
+    returns (uint256)
+  {
+    uint256 newId = nextEntryId();
+    address organizer = msg.sender;
 
-      uint256 newId = nextEntryId();
-      address organizer = msg.sender;
+    SignUpEventEntry memory entry = SignUpEventEntry({
+      id: newId,
+      organizer: organizer,
+      title: _title,
+      spots: _spots,
+      registrationDueDate: _registrationDueDate,
+      eventDate: _eventDate,
+      state: State.Active
+    });
+    
+    entryOrganizer[newId] = organizer;
+    organizerEntriesCount[organizer] += 1;
 
-      SignUpEventEntry memory entry = SignUpEventEntry({
-        id: newId,
-        organizer: organizer,
-        title: _title,
-        spots: _spots,
-        registrationDueDate: _registrationDueDate,
-        eventDate: _eventDate,
-        state: State.Active
-      });
-      
-      entryOrganizer[newId] = organizer;
-      organizerEntriesCount[organizer] += 1;
+    entries.push(entry);
 
-      entries.push(entry);
-
-      return entry.id;
+    return entry.id;
   }
 
   function nextEntryId() private view returns(uint256) {
@@ -160,8 +173,8 @@ contract SignMeUp is ERC20, Ownable {
   function getOrganizerEntries()
     public
     view
-    returns(SignUpEventEntry[] memory) {
-
+    returns(SignUpEventEntry[] memory)
+  {
     address organizer = msg.sender;
 
     SignUpEventEntry[] memory result = new SignUpEventEntry[](organizerEntriesCount[organizer]);
@@ -178,8 +191,19 @@ contract SignMeUp is ERC20, Ownable {
   function randomlyChooseEventParticipants(uint256 _eventId)
     public
     isOrganizer(_eventId)
-    isNotClosed(_eventId) {
-      // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
+    isNotClosed(_eventId)
+  {
+    // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
+    address[] memory registrants = entryRegistrants[_eventId];
+    address[] memory copy = new address[](registrants.length);
+    for (uint256 i = 0; i < registrants.length; i++) {
+      copy[i] = registrants[i];
+    }
+    entryParticipants[_eventId] = copy;
+
+    entries[_eventId].state = State.Closed;
+
+    emit LogEntryClosed(_eventId, copy);
   }
 
   ////// Registrant functions //////
@@ -188,13 +212,14 @@ contract SignMeUp is ERC20, Ownable {
     isActive(_eventId)
     notYetRegistered(_eventId)
     isNotOrganizer(_eventId)
-    returns(uint256) {
-
+    returns(uint256)
+  {
     uint256 registrationTimestamp = block.timestamp;
 
     mapping(address => uint) storage registrationTimestamps = entryRegistrationTimestamps[_eventId];
     registrationTimestamps[msg.sender] = registrationTimestamp;
     registrantEntries[msg.sender].push(_eventId);
+    entryRegistrants[_eventId].push(msg.sender);
 
     emit LogRegistered(_eventId, msg.sender, registrationTimestamp);
 
