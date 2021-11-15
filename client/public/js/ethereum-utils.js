@@ -7,7 +7,7 @@ async function detectMetamask() {
         try {
           // ask user permission to access his accounts
           await window.ethereum.request({ method: "eth_requestAccounts" });
-          $('#mm-status').html('Current Account: ' + ethereum.selectedAddress);
+          $('#mm-status').html('Account: ' + ethereum.selectedAddress);
           resolve(web3);
         } catch (error) {
           reject(error);

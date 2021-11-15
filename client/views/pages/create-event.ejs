@@ -11,6 +11,12 @@
 
     $(document).ready(function() {
 
+      getNewEventPrice().then(price => {
+        $('#event-price').html(
+            parseInt(price / 1_000_000_000).toLocaleString('en').replaceAll(',', ' ')
+          );
+      });
+
       $('#due-date').val(defaultDateTime(1));
       $('#event-date').val(defaultDateTime(3));
 
@@ -18,8 +24,8 @@
         e.preventDefault();
         let title = $('#title').val();
         let spots = $('#spots').val();
-        let dueDate = timestampOf($('#due-date').val());
-        let eventDate = timestampOf($('#event-date').val());
+        let dueDate = epochTimeOf($('#due-date').val());
+        let eventDate = epochTimeOf($('#event-date').val());
         if (eventDate < dueDate) {
           alert("Registration due date must be before event date");
         } else if (confirm("Create event? Title: " + title)) {
@@ -45,11 +51,10 @@
 
 <div class="container">
   <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
-  <div id="ctrt-value" class="alert alert-info text-center" role="alert"></div>
   <hr>
   <div class="row">
     <div class="col-md-6">
-      <div class="text-left">Create New Event</div>
+      <div class="text-left">Create New Event - only for <span id="event-price"></span> Gwei</div>
       <form id="create-event-form" style="margin-top: 15px; margin-bottom: 15px;" action="">
         <div class="input-group" style="margin-bottom: 10px;">
           <span class="input-group-addon" id="title-addon">Title</span>

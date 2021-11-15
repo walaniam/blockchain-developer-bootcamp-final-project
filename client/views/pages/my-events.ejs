@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include ("../partials/header.ejs") %>
+  <script>
+    $(document).ready(function() {
+
+      $('#tab1').click(function() {
+        showOrganizerEvents('#organized');
+      });
+
+      $('#tab2').click(function() {
+        showRegistrantEvents('#registered');
+      });
+
+      $('#tab3').click(function() {
+        showParticipantEvents('#participate');
+      });
+
+      showOrganizerEvents('#organized');
+
+    });
+  </script>
+</head>
+
+<body>
+
+  <%- include ("../partials/nav.ejs") %>
+
+<div class="container">
+  <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+      
+      <div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#organized" aria-controls="organized" id="tab1" role="tab" data-toggle="tab">I'm organizing</a>
+          </li>
+          <li role="presentation">
+            <a href="#registered" aria-controls="registered" id="tab2" role="tab" data-toggle="tab">I'm registered</a>
+          </li>
+          <li role="presentation">
+            <a href="#participate" aria-controls="participate" id="tab3" role="tab" data-toggle="tab">I'm participating</a>
+          </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active" id="organized">
+            Organized
+          </div>
+          <div role="tabpanel" class="tab-pane" id="registered">
+            Registered
+          </div>
+          <div role="tabpanel" class="tab-pane" id="participate">
+            Participate
+          </div>
+        </div>
+      </div>
+
+    </div>    
+  </div> <!-- row -->
+
+  <%- include ("../partials/footer.ejs") %>
+  
+</div>
+
+</body>
+</html>
