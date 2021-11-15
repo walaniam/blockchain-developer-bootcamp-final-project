@@ -5,8 +5,7 @@ async function createEvent(title, spots, registrationDate, eventDate) {
   let price = await getNewEventPrice();
   let transaction = await contract.methods
     .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
-    .send({from: ethereum.selectedAddress});
-    // .send({from: ethereum.selectedAddress, value: price});
+    .send({from: ethereum.selectedAddress, value: price});
 
   console.log("Transaction: " + JSON.stringify(transaction));
   let entryId = transaction.events['LogEntryCreated'].returnValues['id'];
@@ -23,12 +22,85 @@ async function closeEvent(eventId) {
   console.log("Transaction: " + JSON.stringify(transaction));
 }
 
+async function showOrganizerEvents(containerSelector) {
+
+  var container = $(containerSelector);
+  container.empty();
+
+  var contract = await getContract(new Web3(window.ethereum));
+  var count = await contract.methods.getOrganizerEntriesCount().call({from: ethereum.selectedAddress});
+  var entries = await contract.methods.getOrganizerEntries().call({from: ethereum.selectedAddress});
+
+  console.log("Organizer events count:" + JSON.stringify(count));
+  console.log("Organizer events: " + JSON.stringify(entries));
+
+  for (let i = entries.length - 1; i >= 0 ; i--) {
+    var entry = entries[i];
+    var row = `
+      <div class="row">
+        <div class="col-md-6">
+          <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
+          <span>Spots: ${entry.spots}</span><br/>
+          <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
+          <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
+          <button id="close-button-${entry.id}">Close registration</button>
+        </div>
+        <hr/>
+      </div>
+    `;
+
+    $(row).appendTo(container);
+
+    $('#close-button-' + entry.id).click(function() {
+      var eventId = $(this).attr('id').split('-')[2];
+      closeEvent(eventId)
+        .then(result => {
+          alert("Registration closed: " + result);
+        })
+        .catch(err => {
+          alert(err);
+        });
+    });    
+  }
+}
+
 ////// Registrant functions ///////
 async function registerForEvent(eventId) {
   var contract = await getContract(new Web3(window.ethereum));
   var transaction = await contract.methods.registerForEvent(eventId).send({from: ethereum.selectedAddress});
   console.log(JSON.stringify(transaction));
   return eventId;
+}
+
+////// Participant functions ///////
+async function showParticipantEvents(containerSelector) {
+
+  var container = $(containerSelector);
+  container.empty();
+
+  var contract = await getContract(new Web3(window.ethereum));
+  var entryIds = await contract.methods.getEntriesUserSelectedFor().call({from: ethereum.selectedAddress});
+
+  console.log("Participant events: " + JSON.stringify(entryIds));
+
+  for (let i = entryIds.length - 1; i >= 0; i--) {
+    _eventById(entryIds[i], contract).then(entry => {
+      var row = `
+        <div class="row">
+          <div class="col-md-6">
+            <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
+            <span>Spots: ${entry.spots}</span><br/>
+            <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
+            <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
+          </div>
+          <hr/>
+        </div>
+      `;
+
+      $(row).appendTo(container);
+      
+    });
+  }
 }
 
 async function showRegistrantEvents(containerSelector) {
@@ -47,7 +119,7 @@ async function showRegistrantEvents(containerSelector) {
         <div class="row">
           <div class="col-md-6">
             <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-            <span>Available spots: ${entry.spots}</span><br/>
+            <span>Spots: ${entry.spots}</span><br/>
             <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
             <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
           </div>
@@ -107,7 +179,7 @@ async function showActiveEvents() {
       <div class="row">
         <div class="col-md-6">
           <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-          <span>Available spots: ${entry.spots}</span><br/>
+          <span>Spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
           <button id="register-button-${entry.id}">Register</button>
@@ -130,48 +202,6 @@ async function showActiveEvents() {
     });
 
     console.log("Entry " + JSON.stringify(entry));
-  }
-}
-
-async function showOrganizerEvents(containerSelector) {
-
-  var container = $(containerSelector);
-  container.empty();
-
-  var contract = await getContract(new Web3(window.ethereum));
-  var count = await contract.methods.getOrganizerEntriesCount().call({from: ethereum.selectedAddress});
-  var entries = await contract.methods.getOrganizerEntries().call({from: ethereum.selectedAddress});
-
-  console.log("Organizer events count:" + JSON.stringify(count));
-  console.log("Organizer events: " + JSON.stringify(entries));
-
-  for (let i = entries.length - 1; i >= 0 ; i--) {
-    var entry = entries[i];
-    var row = `
-      <div class="row">
-        <div class="col-md-6">
-          <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-          <span>Available spots: ${entry.spots}</span><br/>
-          <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
-          <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          <button id="close-button-${entry.id}">Close registration</button>
-        </div>
-        <hr/>
-      </div>
-    `;
-
-    $(row).appendTo(container);
-
-    $('#close-button-' + entry.id).click(function() {
-      var eventId = $(this).attr('id').split('-')[2];
-      closeEvent(eventId)
-        .then(result => {
-          alert("Registration closed: " + result);
-        })
-        .catch(err => {
-          alert(err);
-        });
-    });    
   }
 }
 
