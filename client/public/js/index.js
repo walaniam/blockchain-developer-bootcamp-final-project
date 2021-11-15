@@ -182,6 +182,7 @@ async function showActiveEvents() {
           <span>Spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
+          <span>Organizer: ${entry.organizer}</span><br/>
           <button id="register-button-${entry.id}">Register</button>
         </div>
         <hr/>
@@ -197,7 +198,7 @@ async function showActiveEvents() {
           alert("Registered: " + result);
         })
         .catch(err => {
-          alert(err);
+          alert(err.message);
         });
     });
 

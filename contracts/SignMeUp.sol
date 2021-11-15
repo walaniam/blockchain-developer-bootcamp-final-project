@@ -40,7 +40,7 @@ contract SignMeUp is ERC20, Ownable {
   ////// Modifiers //////
   modifier isBeforeRegistrationDate(uint _eventId) {
     SignUpEventEntry memory entry = entries[_eventId];
-    require(block.timestamp < entry.registrationDueDate);
+    require(block.timestamp < entry.registrationDueDate, "Already after registration date");
     _;
   }
 
@@ -48,28 +48,28 @@ contract SignMeUp is ERC20, Ownable {
     SignUpEventEntry memory entry = entries[_eventId];
     require(entryParticipants[_eventId].length == 0 
       && entry.registrationDueDate != 0 
-      && block.timestamp >= entry.registrationDueDate);
+      && block.timestamp >= entry.registrationDueDate, "Already selected or not after registration date yet");
     _;
   }
 
   modifier isNotRegistered(uint _eventId) {
     mapping(address => uint) storage registrationTimestamps = entryRegistrationTimestamps[_eventId];
-    require(registrationTimestamps[msg.sender] == 0);
+    require(registrationTimestamps[msg.sender] == 0, "Already regisetered for the event");
     _;
   }
 
   modifier isOrganizer(uint _eventId) {
-    require(entryOrganizer[_eventId] == msg.sender);
+    require(entryOrganizer[_eventId] == msg.sender, "Transaction sender is not organizer of the event");
     _;
   }
 
   modifier isNotOrganizer(uint _eventId) {
-    require(entryOrganizer[_eventId] != msg.sender);
+    require(entryOrganizer[_eventId] != msg.sender, "Transaction sender cannot be organizer of the event");
     _;
   }
 
   modifier paidEnough() {
-    require(msg.value >= entryPriceWei);
+    require(msg.value >= entryPriceWei, "Have not paid enough");
     _;
   }
 
