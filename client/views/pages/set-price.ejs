@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include ("../partials/header.ejs") %>
+  <script>
+
+    // Disable submitting with Enter key
+    $(document).on("keydown", "form", function(event) {
+        return event.key != "Enter";
+    });
+
+    $(document).ready(function() {
+
+      getEventPrice().then(price => {
+        var gweiPrice = price / 1_000_000_000;
+        $('#event-price').html(parseInt(gweiPrice).toLocaleString('en').replaceAll(',', ' '));
+        $('#price').val(gweiPrice);
+      });
+
+      $("#set-price-form").submit(function(e) {
+        e.preventDefault();
+        let gweiPrice = $('#price').val();
+        let price = gweiPrice * 1_000_000_000;
+        if (confirm("Set new price to: " + gweiPrice)) {
+          console.log("Setting price to " + gweiPrice + " Gwei");
+          setPrice(price)
+            .then(() => {
+              window.location = "/set-price";
+            })
+            .catch(err => {
+              alert(err.message);
+            });
+        }
+      });
+
+    });
+  </script>
+</head>
+
+<body>
+
+  <%- include ("../partials/nav.ejs") %>
+
+<div class="container">
+  <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="text-left"><h3>Change Price</h3></div>
+      <div class="text-left">Current price <span id="event-price"></span> Gwei</div>
+      <form id="set-price-form" style="margin-top: 15px; margin-bottom: 15px;" action="">
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="price-addon">Price (Gwei)</span>
+          <input type="text" id="price" name="price" class="form-control" aria-describedby="price-addon"/>
+        </div>
+        <div class="btn-group btn-group-justified" role="group" aria-label="..." style="margin-bottom: 10px;">
+          <div class="btn-group" role="group">
+            <input type="submit" class="btn btn-default" value="Submit">
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include ("../partials/footer.ejs") %>
+
+</div>
+
+</body>
+</html>

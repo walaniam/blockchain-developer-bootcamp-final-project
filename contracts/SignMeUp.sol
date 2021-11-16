@@ -36,6 +36,7 @@ contract SignMeUp is ERC20, Ownable {
   event LogEntryCreated(uint id, address organizer);
   event LogRegistered(uint id, address who, uint when);
   event LogEntryClosed(uint id, address[] participants);
+  event LogPriceChanged(uint oldPrice, uint newPrice);
 
   ////// Modifiers //////
   modifier isBeforeRegistrationDate(uint _eventId) {
@@ -85,6 +86,15 @@ contract SignMeUp is ERC20, Ownable {
 
   constructor() ERC20("SignMeUp", "SMU") {
     entryPriceWei = 50_000 * 1_000_000_000;
+  }
+
+  ////// Owner functions //////
+  function setPrice(uint _price) public onlyOwner {    
+    if (entryPriceWei != _price) {
+      uint oldPrice = entryPriceWei;
+      entryPriceWei = _price;
+      emit LogPriceChanged(oldPrice, entryPriceWei);
+    }
   }
 
   ////// Common functions //////

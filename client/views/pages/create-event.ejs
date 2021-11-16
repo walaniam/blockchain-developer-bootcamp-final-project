@@ -11,7 +11,7 @@
 
     $(document).ready(function() {
 
-      getNewEventPrice().then(price => {
+      getEventPrice().then(price => {
         $('#event-price').html(
             parseInt(price / 1_000_000_000).toLocaleString('en').replaceAll(',', ' ')
           );
@@ -54,7 +54,7 @@
   <hr>
   <div class="row">
     <div class="col-md-6">
-      <div class="text-left">Create New Event - only for <span id="event-price"></span> Gwei</div>
+      <div class="text-left"><h3>Create New Event - only for <span id="event-price"></span> Gwei</h3></div>
       <form id="create-event-form" style="margin-top: 15px; margin-bottom: 15px;" action="">
         <div class="input-group" style="margin-bottom: 10px;">
           <span class="input-group-addon" id="title-addon">Title</span>
@@ -78,15 +78,8 @@
           </div>
         </div>
       </form>
-    </div>
-    <div class="col-md-6">
-      <!-- <h3><span class="glyphicon glyphicon-link"></span> Something else</h3>
-      <ul>
-        <li>Ipsum 1</li>
-        <li>Ipsum 2</li>
-      </ul> -->
-    </div>
-  </div> <!-- row -->
+    </div>    
+  </div>
 
   <%- include ("../partials/footer.ejs") %>
 
