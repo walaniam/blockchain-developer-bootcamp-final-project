@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -70,7 +71,7 @@ contract SignMeUp is ERC20, Ownable {
   }
 
   modifier paidEnough() {
-    require(msg.value >= entryPriceWei, "Have not paid enough");
+    require(msg.value >= entryPriceWei, string(abi.encodePacked("Expected: ", Strings.toString(entryPriceWei), " got: ", Strings.toString(msg.value))));
     _;
   }
 
@@ -89,7 +90,8 @@ contract SignMeUp is ERC20, Ownable {
   }
 
   ////// Owner functions //////
-  function setPrice(uint _price) public onlyOwner {    
+
+  function setPrice(uint _price) public onlyOwner {
     if (entryPriceWei != _price) {
       uint oldPrice = entryPriceWei;
       entryPriceWei = _price;
