@@ -12,6 +12,7 @@ express()
   .get('/event-details', (req, res) => res.render('pages/event-details'))
   .get('/open-events', (req, res) => res.render('pages/open-events'))
   .get('/my-events', (req, res) => res.render('pages/my-events'))
+  .get('/set-price', (req, res) => res.render('pages/set-price'))
   .get('/cool', (req, res) => res.send(cool()))
   .listen(PORT, (err) => {
     if (err) {

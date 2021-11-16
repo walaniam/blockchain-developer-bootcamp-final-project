@@ -4,6 +4,7 @@
 <script type="text/javascript" src="/stylesheets/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/js/http-utils.js"></script>
 <script type="text/javascript" src="/js/ethereum-utils.js"></script>
+<script type="text/javascript" src="/js/owner-functions.js"></script>
 <script type="text/javascript" src="/js/index.js"></script>
 
 <link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap/css/bootstrap.min.css" />
@@ -11,7 +12,19 @@
 
 <script>
   $(document).ready(function() {
-    getContractOwner()
-        .then(result => $("#footer").append("<span>Contract owner: "+ result +"</span>"));
+    getContractOwner().then(owner => {
+
+      $("#footer").append("<span>Contract owner: "+ owner +"</span>");
+
+      if (owner.toLowerCase() == ethereum.selectedAddress.toLowerCase()) {
+        let priceNav = `
+          <li>
+            <a href="/set-price"><span class="glyphicon glyphicon-piggy-bank"></span> Set Price</a>
+          </li>
+        `;
+        $(priceNav).appendTo($('#nav-bar-main'));
+      }
+
+    });
   });
 </script>

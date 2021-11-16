@@ -2,7 +2,7 @@
 ////// Event organizer functions //////
 async function createEvent(title, spots, registrationDate, eventDate) {
   let contract = await getContract(new Web3(window.ethereum));
-  let price = await getNewEventPrice();
+  let price = await getEventPrice();
   let transaction = await contract.methods
     .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
     .send({from: ethereum.selectedAddress, value: price});
@@ -141,7 +141,7 @@ async function getContractOwner() {
   return owner;
 }
 
-async function getNewEventPrice() {
+async function getEventPrice() {
   let contract = await getContract(new Web3(window.ethereum));
   var price = await contract.methods.entryPriceWei().call();
   console.log("Price: " + price);
