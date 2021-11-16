@@ -90,6 +90,7 @@ contract SignMeUp is ERC20, Ownable {
   }
 
   ////// Owner functions //////
+
   function setPrice(uint _price) public onlyOwner {
     if (entryPriceWei != _price) {
       uint oldPrice = entryPriceWei;
