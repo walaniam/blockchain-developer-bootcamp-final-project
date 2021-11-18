@@ -19,7 +19,7 @@ contract("SignMeUp", accounts => {
 
     const price = await instance.entryPriceWei.call();
 
-    var createResult = await instance.createNewSignUpEventEntry("test event", 3, 1000, 5000, {from: organizer1, value: price});    
+    var createResult = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});    
     assert.equal(
       createResult.logs[0].args.id.toNumber(),
       0,
@@ -31,7 +31,7 @@ contract("SignMeUp", accounts => {
       "organizer should match"
     );
 
-    var createResult2 = await instance.createNewSignUpEventEntry("test event", 3, 1000, 5000, {from: organizer2, value: price});
+    var createResult2 = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer2, value: price});
     assert.equal(
       createResult2.logs[0].args.id.toNumber(),
       1,
@@ -50,10 +50,22 @@ contract("SignMeUp", accounts => {
     const payment = price - 1;
 
     try {
-      var createResult = await instance.createNewSignUpEventEntry("test event", 3, 1000, 5000, {from: organizer1, value: payment});
+      var createResult = await instance.createNewSignUpEventEntry("test event", 4, 2236885594, 2236895594, {from: organizer1, value: payment});
       assert.fail("Should have failed with incorrect payment");
     } catch(err) {
       assert.isTrue(err.message.includes("Expected: 50000000000000 got: 49999999999999"));
+    }
+  });
+
+  it("should fail if registration date in the past", async () => {
+
+    const price = await instance.entryPriceWei.call();
+
+    try {
+      var createResult = await instance.createNewSignUpEventEntry("test event", 3, 1000, 2236895594, {from: organizer1, value: price});
+      assert.fail("Should have failed with date validation");
+    } catch(err) {
+      assert.isTrue(err.message.includes("eventDate > registrationDueDate > now()"));
     }
   });
 

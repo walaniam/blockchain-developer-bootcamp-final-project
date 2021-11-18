@@ -136,21 +136,30 @@ contract SignMeUp is ERC20, Ownable {
 
     ////// Owner functions //////
 
-    function setPrice(uint _price) public onlyOwner {
-        if (entryPriceWei != _price) {
+    /// @notice Sets price that is paid by sender when creating a new SignUpEventEntry
+    /// @param price price to be set
+    /// @dev event emitted only when price has actually been change
+    function setPrice(uint price) public onlyOwner {
+        if (entryPriceWei != price) {
             uint oldPrice = entryPriceWei;
-            entryPriceWei = _price;
+            entryPriceWei = price;
             emit LogPriceChanged(oldPrice, entryPriceWei);
         }
     }
 
     ////// Common functions //////
 
+    /// @return number of SignUpEventEntry objects
     function getEntriesCount() public view returns (uint) {
         return entries.length;
     }
 
-    ////// Organizer functions
+    /// @notice create new SignUpEventEntry
+    /// @param title event title
+    /// @param spots number of available spots
+    /// @param registrationDueDate epoch time (seconds) until when users can register for the event
+    /// @param eventDate epoch time (seconds) of the event
+    /// @return entry id
     function createNewSignUpEventEntry(
         string memory title,
         uint spots,
@@ -185,7 +194,7 @@ contract SignMeUp is ERC20, Ownable {
             "eventDate > registrationDueDate > now()"
         );
 
-        uint newId = nextEntryId();
+        uint newId = entries.length;
         address organizer = msg.sender;
 
         SignUpEventEntry memory entry = SignUpEventEntry({
@@ -205,14 +214,14 @@ contract SignMeUp is ERC20, Ownable {
         return entry;
     }
 
-    function nextEntryId() private view returns (uint) {
-        return entries.length;
-    }
-
+    /// @notice Get number of entries created by given message sender
+    /// @return number of entries
     function getOrganizerEntriesCount() public view returns (uint) {
         return organizerEntriesCount[msg.sender];
     }
 
+    /// @notice get entries created by given message sender
+    /// @return entries array
     function getOrganizerEntries() public view returns (SignUpEventEntry[] memory) {
         address organizer = msg.sender;
 
@@ -229,47 +238,54 @@ contract SignMeUp is ERC20, Ownable {
         return result;
     }
 
-    function randomlyChooseEventParticipants(uint _eventId)
+    /// @notice Randomly chooses participants of given SignUpEventEntry from the list of registrants for this event
+    /// @param eventId id of SignUpEventEntry
+    function randomlyChooseEventParticipants(uint eventId)
         public
-        isOrganizer(_eventId)
-        canSelectParticipants(_eventId)
+        isOrganizer(eventId)
+        canSelectParticipants(eventId)
     {
         // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
-        address[] memory registrants = entryRegistrants[_eventId];
+        address[] memory registrants = entryRegistrants[eventId];
         address[] memory participants = new address[](registrants.length);
         for (uint i = 0; i < registrants.length; i++) {
             participants[i] = registrants[i];
         }
-        entryParticipants[_eventId] = participants;
-        emit LogEntryClosed(_eventId, participants);
+        entryParticipants[eventId] = participants;
+        emit LogEntryClosed(eventId, participants);
     }
 
     ////// Registrant functions //////
-    function registerForEvent(uint _eventId)
+
+    /// @notice register sender of this message for the event
+    /// @param eventId SignUpEventEntry id
+    function registerForEvent(uint eventId)
         public
-        isBeforeRegistrationDate(_eventId)
-        isNotRegistered(_eventId)
-        isNotOrganizer(_eventId)
+        isBeforeRegistrationDate(eventId)
+        isNotRegistered(eventId)
+        isNotOrganizer(eventId)
         returns (uint)
     {
         uint registrationTimestamp = block.timestamp;
 
         mapping(address => uint) storage registrationTimestamps = entryRegistrationTimestamps[
-            _eventId
+            eventId
         ];
         registrationTimestamps[msg.sender] = registrationTimestamp;
-        registrantEntries[msg.sender].push(_eventId);
-        entryRegistrants[_eventId].push(msg.sender);
+        registrantEntries[msg.sender].push(eventId);
+        entryRegistrants[eventId].push(msg.sender);
 
-        emit LogRegistered(_eventId, msg.sender, registrationTimestamp);
+        emit LogRegistered(eventId, msg.sender, registrationTimestamp);
 
         return registrationTimestamp;
     }
 
+    /// @return array of ids of entries given message sender registered for
     function getEntriesUserRegisteredFor() public view returns (uint[] memory) {
         return registrantEntries[msg.sender];
     }
 
+    /// @return array of ids of entries given message sender has been selected for
     function getEntriesUserSelectedFor() public view returns (uint[] memory) {
         return participantEntries[msg.sender];
     }
