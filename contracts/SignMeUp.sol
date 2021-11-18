@@ -5,8 +5,12 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @title SignMeUp
+/// @author Mariusz Walania
+/// @notice Contract owner gets paid small fee for each SignUpEventEntry created. Users can register to SignUpEventEntry. Once due date passes, SignUpEventEntry organizer can randomly choose selected participants of the event.
 contract SignMeUp is ERC20, Ownable {
 
+  /// @return wei price of newly created SignUpEventEntry
   uint public entryPriceWei;
 
   // All event entries
@@ -33,43 +37,64 @@ contract SignMeUp is ERC20, Ownable {
   // Organizer of given SignUpEventEntry
   mapping (uint => address) public entryOrganizer;
 
-  ////// Events //////
+  /// @param id id of created SignUpEventEntry
+  /// @param organizer address of SignUpEventEntry organizer
   event LogEntryCreated(uint id, address organizer);
+
+  /// @param id id of SignUpEventEntry someone registered to
+  /// @param who address of registrant for the SignUpEventEntry
+  /// @param when timestamp when the registration happened
   event LogRegistered(uint id, address who, uint when);
+
+  /// @param id id SignUpEventEntry that was closed and for which participants were selected
+  /// @param participants list of participant addresses selected from registrants list
   event LogEntryClosed(uint id, address[] participants);
+
+  /// @param oldPrice previous price of created SignUpEventEntry
+  /// @param newPrice current price of created SignUpEventEntry
   event LogPriceChanged(uint oldPrice, uint newPrice);
 
-  ////// Modifiers //////
-  modifier isBeforeRegistrationDate(uint _eventId) {
-    SignUpEventEntry memory entry = entries[_eventId];
+  /// @notice require the SignUpEventEntry of this id to be before registration date
+  /// @param eventId id of SignUpEventEntry
+  modifier isBeforeRegistrationDate(uint eventId) {
+    SignUpEventEntry memory entry = entries[eventId];
     require(block.timestamp < entry.registrationDueDate, "Already after registration date");
     _;
   }
 
-  modifier canSelectParticipants(uint _eventId) {
-    SignUpEventEntry memory entry = entries[_eventId];
-    require(entryParticipants[_eventId].length == 0 
+  /// @notice Requires given SignUpEventEntry to be after registration date and no participants selected yet for this event
+  /// @param eventId SignUpEventEntry id
+  modifier canSelectParticipants(uint eventId) {
+    SignUpEventEntry memory entry = entries[eventId];
+    require(entryParticipants[eventId].length == 0 
       && entry.registrationDueDate != 0 
       && block.timestamp >= entry.registrationDueDate, "Already selected or not after registration date yet");
     _;
   }
 
-  modifier isNotRegistered(uint _eventId) {
-    mapping(address => uint) storage registrationTimestamps = entryRegistrationTimestamps[_eventId];
+  /// @notice Requires message sender not to be registered for given SignUpEventEntry
+  /// @param eventId SignUpEventEntry id
+  modifier isNotRegistered(uint eventId) {
+    mapping(address => uint) storage registrationTimestamps = entryRegistrationTimestamps[eventId];
     require(registrationTimestamps[msg.sender] == 0, "Already regisetered for the event");
     _;
   }
 
-  modifier isOrganizer(uint _eventId) {
-    require(entryOrganizer[_eventId] == msg.sender, "Transaction sender is not organizer of the event");
+  /// @notice Requires message sender to be organizer of this SignUpEventEntry
+  /// @param eventId SignUpEventEntry id
+  modifier isOrganizer(uint eventId) {
+    require(entryOrganizer[eventId] == msg.sender, "Transaction sender is not organizer of the event");
     _;
   }
 
-  modifier isNotOrganizer(uint _eventId) {
-    require(entryOrganizer[_eventId] != msg.sender, "Transaction sender cannot be organizer of the event");
+  /// @notice Requires message sender not to be organizer of given SignUpEventEntry
+  /// @param eventId SignUpEventEntry id
+  modifier isNotOrganizer(uint eventId) {
+    require(entryOrganizer[eventId] != msg.sender, "Transaction sender cannot be organizer of the event");
     _;
   }
 
+  /// @notice Requires message value to be at least of entryPriceWei
   modifier paidEnough() {
     require(msg.value >= entryPriceWei, string(abi.encodePacked("Expected: ", Strings.toString(entryPriceWei), " got: ", Strings.toString(msg.value))));
     _;
@@ -128,24 +153,28 @@ contract SignMeUp is ERC20, Ownable {
   }
 
   function newSignUpEventEntryOf(
-    string memory _title,
-    uint _spots,
-    uint64 _registrationDueDate,
-    uint64 _eventDate
+    string memory title,
+    uint spots,
+    uint64 registrationDueDate,
+    uint64 eventDate
   )
     private
     returns (SignUpEventEntry memory)
   {
+    require(bytes(title).length > 0, "Title cannot be empty");
+    require(spots > 0, "Spots must be positive integer");
+    require(eventDate > registrationDueDate && registrationDueDate > block.timestamp, "eventDate > registrationDueDate > now()");
+
     uint newId = nextEntryId();
     address organizer = msg.sender;
 
     SignUpEventEntry memory entry = SignUpEventEntry({
       id: newId,
       organizer: organizer,
-      title: _title,
-      spots: _spots,
-      registrationDueDate: _registrationDueDate,
-      eventDate: _eventDate
+      title: title,
+      spots: spots,
+      registrationDueDate: registrationDueDate,
+      eventDate: eventDate
     });
     
     entryOrganizer[newId] = organizer;
