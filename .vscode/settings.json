@@ -1,3 +1,5 @@
 {
-    "editor.tabSize": 2
+    "editor.tabSize": 4,
+    "editor.formatOnSave": false,
+    "solidity.compileUsingRemoteVersion": "v0.8.10+commit.fc410830"
 }
