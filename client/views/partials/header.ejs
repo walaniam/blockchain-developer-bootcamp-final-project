@@ -12,6 +12,7 @@
 
 <script>
   $(document).ready(function() {
+
     getContractOwner().then(owner => {
 
       $("#footer").append("<span>Contract owner: "+ owner +"</span>");
@@ -24,7 +25,14 @@
         `;
         $(priceNav).appendTo($('#nav-bar-main'));
       }
+    });
 
+    ethereum.on('chainChanged', (chainId) => {
+      window.location.reload();
+    });
+
+    ethereum.on('accountsChanged', (accounts) => {
+      window.location.reload();
     });
   });
 </script>

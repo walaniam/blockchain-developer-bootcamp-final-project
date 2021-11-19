@@ -70,7 +70,7 @@ contract SignMeUp is ERC20, Ownable {
             entryParticipants[eventId].length == 0 &&
                 entry.registrationDueDate != 0 &&
                 block.timestamp >= entry.registrationDueDate,
-            "Already selected or not after registration date yet"
+            "Event closed or not after registration date yet"
         );
         _;
     }
@@ -254,6 +254,9 @@ contract SignMeUp is ERC20, Ownable {
             Math.min(registrants.length, entries[eventId].spots)
         );
         entryParticipants[eventId] = participants;
+        for (uint i = 0; i < participants.length; i++) {
+            participantEntries[participants[i]].push(eventId);
+        }
 
         emit LogEntryClosed(eventId, participants);
     }
@@ -288,9 +291,28 @@ contract SignMeUp is ERC20, Ownable {
         return registrantEntries[msg.sender];
     }
 
+    /// @notice Checks if message sender is registered for given event
+    /// @param eventId event id
+    /// @return true if registered, false otherwise
+    function isRegisteredForEntry(uint eventId) public view returns (bool) {
+        return entryRegistrationTimestamps[eventId][msg.sender] > 0;
+    }
+
     /// @return array of ids of entries given message sender has been selected for
     function getEntriesUserSelectedFor() public view returns (uint[] memory) {
         return participantEntries[msg.sender];
+    }
+
+    /// @notice Get number of registrants for given SignUpEventEntry
+    /// @param eventId event id
+    /// @return number of registrants
+    function getNumberOfRegisteredUsersForEvent(uint eventId)
+        public
+        view
+        isOrganizer(eventId)
+        returns (uint)
+    {
+        return entryRegistrants[eventId].length;
     }
 
     /// @notice pseudo number way of selecting participants

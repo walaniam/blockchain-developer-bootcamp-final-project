@@ -36,6 +36,7 @@ async function showOrganizerEvents(containerSelector) {
 
   for (let i = entries.length - 1; i >= 0 ; i--) {
     var entry = entries[i];
+    var registrantsCount = await contract.methods.getNumberOfRegisteredUsersForEvent(i).call({from: ethereum.selectedAddress});
     var row = `
       <div class="row">
         <div class="col-md-6">
@@ -43,6 +44,7 @@ async function showOrganizerEvents(containerSelector) {
           <span>Spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
+          <span>Registered users: ${registrantsCount}</span><br/>
           <button id="close-button-${entry.id}">Close registration</button>
         </div>
         <hr/>
@@ -54,11 +56,12 @@ async function showOrganizerEvents(containerSelector) {
     $('#close-button-' + entry.id).click(function() {
       var eventId = $(this).attr('id').split('-')[2];
       closeEvent(eventId)
-        .then(result => {
-          alert("Registration closed: " + result);
+        .then(() => {
+          alert("Registration closed");
+          window.location = '/my-events';
         })
         .catch(err => {
-          alert(err);
+          alert(err.message);
         });
     });    
   }
@@ -155,6 +158,12 @@ async function getActiveEventsCount() {
   return count;
 }
 
+async function isRegisteredForEntry(eventId) {
+  let contract = await getContract(new Web3(window.ethereum));
+  let isRegistered = await contract.methods.isRegisteredForEntry(eventId).call({from: ethereum.selectedAddress});
+  return isRegistered;
+}
+
 async function getEventById(eventId) {
   let contract = await getContract(new Web3(window.ethereum));
   return _eventById(eventId, contract);
@@ -177,25 +186,40 @@ async function showActiveEvents() {
     var entry = await contract.methods.entries(i).call();
     let row = `
       <div class="row">
-        <div class="col-md-6">
+        <div id="row-${i}" class="col-md-6">
           <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
           <span>Spots: ${entry.spots}</span><br/>
           <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
           <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
           <span>Organizer: ${entry.organizer}</span><br/>
-          <button id="register-button-${entry.id}">Register</button>
         </div>
         <hr/>
       </div>
     `;
 
     $(row).appendTo(container);
+    
+    if (ethereum.selectedAddress.toLowerCase() != entry.organizer.toLowerCase()) {
+      
+      let isRegistered = await contract.methods.isRegisteredForEntry(i).call({from: ethereum.selectedAddress});
+
+      if (isRegistered) {
+        $('<span style="margin-top: 10px;">Already registered</span>').appendTo($('#row-' + entry.id));
+      } else {
+        var button = `<button id="register-button-${entry.id}">Register</button>`;
+        $(button).appendTo($('#row-' + entry.id));
+      }
+      
+    } else {
+      $('<span style="margin-top: 10px;">You are organizer</span>').appendTo($('#row-' + entry.id));
+    }
 
     $('#register-button-' + entry.id).click(function() {
       var eventId = $(this).attr('id').split('-')[2];
       registerForEvent(eventId)
         .then(result => {
-          alert("Registered: " + result);
+          alert("Registered event: " + result);
+          window.location = '/open-events';
         })
         .catch(err => {
           alert(err.message);
