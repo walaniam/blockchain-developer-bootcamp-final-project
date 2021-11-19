@@ -1,7 +1,13 @@
 const SignMeUp = artifacts.require("./SignMeUp.sol");
 
+function epochTime(plusSeconds) {
+  var date = new Date();
+  date.setSeconds(date.getSeconds() + plusSeconds);
+  return Math.floor(date.getTime() / 1000);
+}
+
 contract("SignMeUp", accounts => {
-  const [contractOwner, organizer1, organizer2] = accounts;
+  const [contractOwner, organizer1, organizer2, registrant1, registrant2, registrant3] = accounts;
 
   beforeEach(async () => {
     instance = await SignMeUp.deployed();
@@ -84,6 +90,43 @@ contract("SignMeUp", accounts => {
 
     const price = await instance.entryPriceWei.call();    
     assert.equal(price.toString(), 100_000 * 1_000_000_000, "Price is NOT 100_000 Gwei");
+  });
+
+  it("should create new SignUpEntry register and select participants", async () => {
+
+    const price = await instance.entryPriceWei.call();
+    var unused = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});    
+
+    var registrationSecondsFromNow = 2;
+    const registrationDueDate = epochTime(registrationSecondsFromNow);
+    const eventDate = epochTime(4);
+
+    const spots = 2;
+    var createResult = await instance.createNewSignUpEventEntry(
+        "test event", spots, registrationDueDate, eventDate, {from: organizer1, value: price}
+    );
+    var id = createResult.logs[0].args.id.toNumber();
+
+    // Three senders register for an event
+    await instance.registerForEvent(id, {from: registrant1});
+    await instance.registerForEvent(id, {from: registrant2});
+    await instance.registerForEvent(id, {from: registrant3});
+
+    // Each of three senders is registered for this event
+    var registrant1Ids = await instance.getEntriesUserRegisteredFor({from: registrant1});
+    var registrant2Ids = await instance.getEntriesUserRegisteredFor({from: registrant2});
+    var registrant3Ids = await instance.getEntriesUserRegisteredFor({from: registrant3});
+    assert.equal(registrant1Ids[0], id);
+    assert.equal(registrant2Ids[0], id);
+    assert.equal(registrant3Ids[0], id);
+
+    // Await for the registration due date
+    await new Promise(r => setTimeout(r, (registrationSecondsFromNow + 1) * 1000));
+
+    // Organizer randomly chooses participants of the event
+    var chooseResult = await instance.randomlyChooseEventParticipants(id, {from: organizer1});
+    assert.equal(chooseResult.logs[0].args.id, id);
+    assert.equal(chooseResult.logs[0].args.participants.length, spots);
   });
 
 });

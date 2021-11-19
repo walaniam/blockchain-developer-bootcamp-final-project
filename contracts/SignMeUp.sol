@@ -2,6 +2,7 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -246,12 +247,14 @@ contract SignMeUp is ERC20, Ownable {
         canSelectParticipants(eventId)
     {
         // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
+
         address[] memory registrants = entryRegistrants[eventId];
-        address[] memory participants = new address[](registrants.length);
-        for (uint i = 0; i < registrants.length; i++) {
-            participants[i] = registrants[i];
-        }
+        address[] memory participants = pseudoRandomAddresses(
+            registrants,
+            Math.min(registrants.length, entries[eventId].spots)
+        );
         entryParticipants[eventId] = participants;
+
         emit LogEntryClosed(eventId, participants);
     }
 
@@ -290,11 +293,29 @@ contract SignMeUp is ERC20, Ownable {
         return participantEntries[msg.sender];
     }
 
-    // ### Utils ###
-    // #############
+    /// @notice pseudo number way of selecting participants
+    /// @param registrants array of registrants addresses
+    /// @param targetCount number of addresses that should be selected among registrants
+    function pseudoRandomAddresses(address[] memory registrants, uint targetCount)
+        private
+        view
+        returns (address[] memory)
+    {
+        uint number = uint(
+            keccak256(abi.encodePacked(block.timestamp, block.difficulty, registrants))
+        );
+        uint pseudoNumber = number % registrants.length;
+        assert(pseudoNumber < registrants.length);
 
-    function nonSecureRandom() private view returns (uint) {
-        return uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty)));
+        uint registrantIndex = pseudoNumber;
+        address[] memory participants = new address[](targetCount);
+        for (uint i = 0; i < participants.length; i++) {
+            participants[i] = registrants[registrantIndex++];
+            if (registrantIndex >= registrants.length) {
+                registrantIndex = 0;
+            }
+        }
+
+        return participants;
     }
-    // ### Utils - end ###
 }
