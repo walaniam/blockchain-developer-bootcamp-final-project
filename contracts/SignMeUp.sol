@@ -249,13 +249,16 @@ contract SignMeUp is ERC20, Ownable {
         // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
 
         address[] memory registrants = entryRegistrants[eventId];
-        address[] memory participants = pseudoRandomAddresses(
-            registrants,
-            Math.min(registrants.length, entries[eventId].spots)
-        );
-        entryParticipants[eventId] = participants;
-        for (uint i = 0; i < participants.length; i++) {
-            participantEntries[participants[i]].push(eventId);
+        address[] memory participants;
+        if (registrants.length > 0) {
+            participants = pseudoRandomAddresses(
+                registrants,
+                Math.min(registrants.length, entries[eventId].spots)
+            );
+            entryParticipants[eventId] = participants;
+            for (uint i = 0; i < participants.length; i++) {
+                participantEntries[participants[i]].push(eventId);
+            }
         }
 
         emit LogEntryClosed(eventId, participants);

@@ -34,14 +34,16 @@
           alert('Title cannot be blank');
         } else if (confirm("Create event? Title: " + title)) {
           console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
-          createEvent(title, spots, dueDate, eventDate)
-            .then(id => {
-              alert("Event created: " + id);
-              window.location = "/event-details?id=" + id;
-            })
-            .catch(err => {
-              alert(err.message);
-            });
+          $("#create-event-form :input").prop("disabled", true);
+          var awaitCallback = function() {
+            $("#create-event-form").css("display","none");
+          };
+          var errCallback = function(err) {
+            $("#create-event-form :input").prop("disabled", false);
+            $('#mm-status').html("Failed: " + err.message);
+          };
+          createEvent(title, spots, dueDate, eventDate, awaitCallback, errCallback)
+            .catch(err => errCallback);
         }
       });
 

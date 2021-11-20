@@ -34,5 +34,14 @@
     ethereum.on('accountsChanged', (accounts) => {
       window.location.reload();
     });
+
+    ethereum.on('disconnect', (err) => {
+      window.location.reload();
+    });
+
+    ethereum.on('message', (message) => {
+      $('#mm-status').html(message);
+    });
+
   });
 </script>

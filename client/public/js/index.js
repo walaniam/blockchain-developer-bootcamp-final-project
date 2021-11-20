@@ -1,25 +1,47 @@
 
 ////// Event organizer functions //////
-async function createEvent(title, spots, registrationDate, eventDate) {
+async function createEvent(title, spots, registrationDate, eventDate, awaitCallback, errorCallback) {
   let contract = await getContract(new Web3(window.ethereum));
   let price = await getEventPrice();
-  let transaction = await contract.methods
-    .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
-    .send({from: ethereum.selectedAddress, value: price});
 
-  console.log("Transaction: " + JSON.stringify(transaction));
-  let entryId = transaction.events['LogEntryCreated'].returnValues['id'];
-  console.log("Event created, id=" + entryId);
-  
-  return entryId;
+  $('#mm-status').html("Sending transaction...");
+
+  contract.methods
+    .createNewSignUpEventEntry(title, spots, registrationDate, eventDate)
+    .send({from: ethereum.selectedAddress, value: price})
+    .on('transactionHash', function(hash) {
+      $('#mm-status').html("Transaction " + hash + " in progress. It may take up to few minutes to complete");
+      awaitCallback();
+    })
+    .on('confirmation', function(confirmationNumber, receipt) {
+      alert('conf');
+      $('#mm-status').html("Confirmed: " + receipt);
+    })
+    .on('receipt', function(receipt) {
+      let entryId = receipt.events['LogEntryCreated'].returnValues['id'];
+      console.log("Event created, id=" + entryId);
+      window.location = '/event-details?id=' + entryId;
+    })
+    .on('error', errorCallback);
 }
 
-async function closeEvent(eventId) {
+async function closeEvent(eventId, errorCallback) {
   let contract = await getContract(new Web3(window.ethereum));
-  let transaction = await contract.methods
+  contract.methods
     .randomlyChooseEventParticipants(eventId)
-    .send({from: ethereum.selectedAddress});
-  console.log("Transaction: " + JSON.stringify(transaction));
+    .send({from: ethereum.selectedAddress})
+    .on('transactionHash', function(hash) {
+      $('#mm-status').html("Transaction " + hash + " in progress. It may take up to few minutes to complete");
+    })
+    .on('confirmation', function(confirmationNumber, receipt) {
+      alert('conf');
+      $('#mm-status').html("Confirmed: " + receipt);
+    })
+    .on('receipt', function(receipt) {
+      console.log("Event closed: " + JSON.stringify(receipt));
+      window.location = '/my-events';
+    })
+    .on('error', errorCallback);    
 }
 
 async function showOrganizerEvents(containerSelector) {
@@ -57,14 +79,11 @@ async function showOrganizerEvents(containerSelector) {
 
     $('#close-button-' + entry.id).click(function() {
       var eventId = $(this).attr('id').split('-')[2];
-      closeEvent(eventId)
-        .then(() => {
-          alert("Registration closed");
-          window.location = '/my-events';
-        })
-        .catch(err => {
-          alert(err.message);
-        });
+      var errCallback = function(err) {
+        $('#mm-status').html("Failed: " + err.message);
+      };
+      closeEvent(eventId, errCallback)
+        .catch(err => errCallback);
     });    
   }
 }
@@ -192,12 +211,13 @@ async function showActiveEvents(containerSelector) {
   
   let container = $(containerSelector);
 
-  if (count < 1) {
-    $('<h4><span>No events created yet. Want to create one?</span></h4>').appendTo(container);
-  }
-
+  var anyAdded = false;
   for (let i = count - 1; i >= 0; i--) {
     var entry = await contract.methods.entries(i).call();
+    if (epochTimeNow() > entry.registrationDueDate) {
+      continue;
+    }
+    anyAdded = true;
     let row = `
       <div class="row">
         <div id="row-${i}" class="col-md-6">
@@ -241,6 +261,10 @@ async function showActiveEvents(containerSelector) {
     });
 
     console.log("Entry " + JSON.stringify(entry));
+  }
+
+  if (!anyAdded) {
+    $('<h4><span>No events created yet. Want to create one?</span></h4>').appendTo(container);
   }
 }
 

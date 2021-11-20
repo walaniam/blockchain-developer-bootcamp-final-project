@@ -140,4 +140,26 @@ contract("SignMeUp", accounts => {
     }
   });
 
+  it("should create new SignUpEntry and do nothing when close empty event", async () => {
+
+    const price = await instance.entryPriceWei.call();
+    var registrationSecondsFromNow = 2;
+    const registrationDueDate = epochTime(registrationSecondsFromNow);
+    const eventDate = epochTime(4);
+
+    const spots = 2;
+    var createResult = await instance.createNewSignUpEventEntry(
+        "test event", spots, registrationDueDate, eventDate, {from: organizer1, value: price}
+    );
+    var id = createResult.logs[0].args.id.toNumber();
+
+    // Await for the registration due date
+    await new Promise(r => setTimeout(r, (registrationSecondsFromNow + 1) * 1000));
+
+    // Organizer randomly chooses participants of the event... no one registered
+    var chooseResult = await instance.randomlyChooseEventParticipants(id, {from: organizer1});
+    assert.equal(chooseResult.logs[0].args.id, id);
+    assert.equal(chooseResult.logs[0].args.participants.length, 0);
+  });
+
 });

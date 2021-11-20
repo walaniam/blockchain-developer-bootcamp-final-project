@@ -18,6 +18,10 @@ function epochTimeOf(localDateTime) {
     return new Date(localDateTime).getTime() / 1000;
 }
 
+function epochTimeNow() {
+    return new Date().getTime() / 1000;
+}
+
 function formatDateOf(timestamp) {
     // console.log("timestamp: " + timestamp);
     try {
