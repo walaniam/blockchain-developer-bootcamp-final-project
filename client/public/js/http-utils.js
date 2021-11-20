@@ -38,3 +38,7 @@ function defaultDateTime(plusDays) {
     var formattedDate = adjustedDate.toISOString().substring(0,16); // For minute precision
     return formattedDate;
 }
+
+function isBlank(str) {
+    return (!str || /^\s*$/.test(str));
+}

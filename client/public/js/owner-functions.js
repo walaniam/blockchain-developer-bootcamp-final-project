@@ -5,5 +5,4 @@ async function setPrice(newPrice) {
     .send({from: ethereum.selectedAddress});
 
   console.log("Transaction: " + JSON.stringify(transaction));
-  alert(JSON.stringify(transaction));
 }

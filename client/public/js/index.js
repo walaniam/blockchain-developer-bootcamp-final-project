@@ -28,15 +28,17 @@ async function showOrganizerEvents(containerSelector) {
   container.empty();
 
   var contract = await getContract(new Web3(window.ethereum));
-  var count = await contract.methods.getOrganizerEntriesCount().call({from: ethereum.selectedAddress});
   var entries = await contract.methods.getOrganizerEntries().call({from: ethereum.selectedAddress});
 
-  console.log("Organizer events count:" + JSON.stringify(count));
   console.log("Organizer events: " + JSON.stringify(entries));
+
+  if (entries.length == 0) {
+    $('<h5><span>You are not organizing any event</span></h5>').appendTo(container);
+  }
 
   for (let i = entries.length - 1; i >= 0 ; i--) {
     var entry = entries[i];
-    var registrantsCount = await contract.methods.getNumberOfRegisteredUsersForEvent(i).call({from: ethereum.selectedAddress});
+    var registrantsCount = await contract.methods.getNumberOfRegisteredUsersForEvent(entry.id).call({from: ethereum.selectedAddress});
     var row = `
       <div class="row">
         <div class="col-md-6">
@@ -86,6 +88,10 @@ async function showParticipantEvents(containerSelector) {
 
   console.log("Participant events: " + JSON.stringify(entryIds));
 
+  if (entryIds.length == 0) {
+    $('<h5><span>You are not participating in any event</span></h5>').appendTo(container);
+  }
+
   for (let i = entryIds.length - 1; i >= 0; i--) {
     _eventById(entryIds[i], contract).then(entry => {
       var row = `
@@ -115,6 +121,10 @@ async function showRegistrantEvents(containerSelector) {
   var entryIds = await contract.methods.getEntriesUserRegisteredFor().call({from: ethereum.selectedAddress});
 
   console.log("Registrant events: " + JSON.stringify(entryIds));
+
+  if (entryIds.length == 0) {
+    $('<h5><span>You are not registered to any event</span></h5>').appendTo(container);
+  }
 
   for (let i = entryIds.length - 1; i >= 0; i--) {
     _eventById(entryIds[i], contract).then(entry => {
@@ -175,12 +185,16 @@ async function _eventById(eventId, contract) {
   return entry;
 }
 
-async function showActiveEvents() {
+async function showActiveEvents(containerSelector) {
 
   let contract = await getContract(new Web3(window.ethereum));
   let count = await contract.methods.getEntriesCount().call();
   
-  let container = $('#active-events');
+  let container = $(containerSelector);
+
+  if (count < 1) {
+    $('<h4><span>No events created yet. Want to create one?</span></h4>').appendTo(container);
+  }
 
   for (let i = count - 1; i >= 0; i--) {
     var entry = await contract.methods.entries(i).call();

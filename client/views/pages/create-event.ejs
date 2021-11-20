@@ -28,6 +28,10 @@
         let eventDate = epochTimeOf($('#event-date').val());
         if (eventDate < dueDate) {
           alert("Registration due date must be before event date");
+        } else if (spots < 1) {
+          alert("Spots must be positive integer");
+        } else if (isBlank(title)) {
+          alert('Title cannot be blank');
         } else if (confirm("Create event? Title: " + title)) {
           console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
           createEvent(title, spots, dueDate, eventDate)

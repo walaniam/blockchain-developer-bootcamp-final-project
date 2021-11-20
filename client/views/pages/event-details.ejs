@@ -48,6 +48,11 @@
               }
             });
           }
+        })
+        .catch(err => {
+          let alert = $('<div class="alert alert-info text-center" role="alert">Event not found or not on chain yet. Try again later</div>');
+          alert.css('color', 'red');
+          alert.appendTo($("#event-details"));
         });
 
     });

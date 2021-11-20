@@ -39952,12 +39952,12 @@
         }
       },
       "links": {},
-      "address": "0xAAe1325BF89330075b512b0999b77462e1a8C6bd",
-      "transactionHash": "0xd5d14918a1ddcaa58023ca9bb36680d5010be3670aa2d7fb463030c04746e79c"
+      "address": "0x5D7B7F3e92a95C2A901D067C8443C3DF3caEdE17",
+      "transactionHash": "0x2182218a8deb7cc129ac18e801fd2ae547a3915649521718e5634416c51d4308"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-19T14:38:10.101Z",
+  "updatedAt": "2021-11-20T16:38:53.338Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "Mariusz Walania",
