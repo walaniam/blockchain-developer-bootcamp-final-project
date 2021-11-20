@@ -78,6 +78,12 @@ cd client
 heroku local web
 ```
 
+In case you need to deploy the contract to ropsten create .env file in project dir with following variables
+```shell
+MNEMONIC=
+INFURA_URL=
+```
+
 ## Deploy to Heroku
 
 This applications uses https://elements.heroku.com/buildpacks/timanovsky/subdir-heroku-buildpack build pack.
