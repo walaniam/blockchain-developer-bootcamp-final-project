@@ -3,13 +3,19 @@ pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 /// @title SignMeUp
 /// @author Mariusz Walania
 /// @notice Contract owner gets paid small fee for each SignUpEventEntry created. Users can register to SignUpEventEntry. Once due date passes, SignUpEventEntry organizer can randomly choose selected participants of the event.
-contract SignMeUp is Ownable, ReentrancyGuard {
+contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
+    using Counters for Counters.Counter;
+
+    Counters.Counter private tokenIdCounter;
+
     /// @return wei price paid for newly created SignUpEventEntry
     uint public entryPriceWei;
 
@@ -30,6 +36,8 @@ contract SignMeUp is Ownable, ReentrancyGuard {
 
     // Participants for given SignUpEventEntry
     mapping(uint => address[]) private entryParticipants;
+    mapping(uint => uint[]) private entryTokens;
+    uint[] private allTokens;
 
     // Number of entries organized by user
     mapping(address => uint) private organizerEntriesCount;
@@ -131,7 +139,7 @@ contract SignMeUp is Ownable, ReentrancyGuard {
         uint64 eventDate;
     }
 
-    constructor() {
+    constructor() ERC721("SignMeUp", "SMU") {
         entryPriceWei = 50_000 * 1_000_000_000;
     }
 
@@ -236,6 +244,14 @@ contract SignMeUp is Ownable, ReentrancyGuard {
         return result;
     }
 
+    function safeMint(uint eventId, address to) private isOrganizer(eventId) {
+        uint tokenId = tokenIdCounter.current();
+        tokenIdCounter.increment();
+        entryTokens[eventId].push(tokenId);
+        allTokens.push(tokenId);
+        _safeMint(to, tokenId);
+    }
+
     /// @notice Randomly chooses participants of given SignUpEventEntry from the list of registrants for this event
     /// @param eventId id of SignUpEventEntry
     function randomlyChooseEventParticipants(uint eventId)
@@ -255,7 +271,9 @@ contract SignMeUp is Ownable, ReentrancyGuard {
             );
             entryParticipants[eventId] = participants;
             for (uint i = 0; i < participants.length; i++) {
-                participantEntries[participants[i]].push(eventId);
+                address participant = participants[i];
+                participantEntries[participant].push(eventId);
+                safeMint(eventId, participant);
             }
         }
 
