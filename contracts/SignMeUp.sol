@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title SignMeUp
 /// @author Mariusz Walania
 /// @notice Contract owner gets paid small fee for each SignUpEventEntry created. Users can register to SignUpEventEntry. Once due date passes, SignUpEventEntry organizer can randomly choose selected participants of the event.
-contract SignMeUp is ERC20, Ownable {
+contract SignMeUp is Ownable, ReentrancyGuard {
     /// @return wei price paid for newly created SignUpEventEntry
     uint public entryPriceWei;
 
@@ -131,7 +131,7 @@ contract SignMeUp is ERC20, Ownable {
         uint64 eventDate;
     }
 
-    constructor() ERC20("SignMeUp", "SMU") {
+    constructor() {
         entryPriceWei = 50_000 * 1_000_000_000;
     }
 
@@ -140,7 +140,7 @@ contract SignMeUp is ERC20, Ownable {
     /// @notice Sets price that is paid by sender when creating a new SignUpEventEntry
     /// @param price price to be set
     /// @dev event emitted only when price has actually been change
-    function setPrice(uint price) public onlyOwner {
+    function setPrice(uint price) public onlyOwner nonReentrant {
         if (entryPriceWei != price) {
             uint oldPrice = entryPriceWei;
             entryPriceWei = price;
@@ -160,13 +160,12 @@ contract SignMeUp is ERC20, Ownable {
     /// @param spots number of available spots
     /// @param registrationDueDate epoch time (seconds) until when users can register for the event
     /// @param eventDate epoch time (seconds) of the event
-    /// @return entry id
     function createNewSignUpEventEntry(
         string memory title,
         uint spots,
         uint64 registrationDueDate,
         uint64 eventDate
-    ) public payable paidEnough returns (uint) {
+    ) public payable paidEnough {
         SignUpEventEntry memory entry = newSignUpEventEntryOf(
             title,
             spots,
@@ -178,8 +177,6 @@ contract SignMeUp is ERC20, Ownable {
         _owner.transfer(msg.value);
 
         emit LogEntryCreated(entry.id, entry.organizer);
-
-        return entry.id;
     }
 
     function newSignUpEventEntryOf(
@@ -245,6 +242,7 @@ contract SignMeUp is ERC20, Ownable {
         public
         isOrganizer(eventId)
         canSelectParticipants(eventId)
+        nonReentrant
     {
         // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
 
@@ -273,7 +271,7 @@ contract SignMeUp is ERC20, Ownable {
         isBeforeRegistrationDate(eventId)
         isNotRegistered(eventId)
         isNotOrganizer(eventId)
-        returns (uint)
+        nonReentrant
     {
         uint registrationTimestamp = block.timestamp;
 
@@ -285,8 +283,6 @@ contract SignMeUp is ERC20, Ownable {
         entryRegistrants[eventId].push(msg.sender);
 
         emit LogRegistered(eventId, msg.sender, registrationTimestamp);
-
-        return registrationTimestamp;
     }
 
     /// @return array of ids of entries given message sender registered for

@@ -25,7 +25,7 @@ contract("SignMeUp", accounts => {
 
     const price = await instance.entryPriceWei.call();
 
-    var createResult = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});    
+    var createResult = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});
     assert.equal(
       createResult.logs[0].args.id.toNumber(),
       0,

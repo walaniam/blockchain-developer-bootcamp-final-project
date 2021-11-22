@@ -268,6 +268,39 @@ async function showActiveEvents(containerSelector) {
   }
 }
 
+async function getFooterContent() {
+  var web3 = await detectMetamask();
+  var contract = await getContract(web3);
+  var owner = await contract.methods.owner().call();
+  var netId = await web3.eth.net.getId();
+  var address = contract.options.address;
+  console.log('Contract address: ' + address);
+  
+  if (netId == 1) {
+    var etherScanUrl = 'https://etherscan.io/address/';
+  } else if (netId == 3) {
+    var etherScanUrl = 'https://ropsten.etherscan.io/address/';
+  } else if (netId == 4) {
+    var etherScanUrl = 'https://rinkeby.etherscan.io/';
+  } else {
+    var etherScanUrl = '';
+  }
+
+  if (netId > 4) {
+    var footerContent = `
+      <span>Contract owner: ${owner}</span><br/>
+      <span style="margin-top: 25px;">Contract address: ${address}</span>
+    `;
+  } else {
+    var footerContent = `
+      <span>Contract owner: <a target="_blank" href="${etherScanUrl + owner}">${owner}</a></span><br/>
+      <span style="margin-top: 25px;">Contract address: <a target="_blank" href="${etherScanUrl + address}">${address}</a></span>
+    `;
+  }
+
+  return footerContent;
+}
+
 ////// Detect metamask //////
 async function detectNetworkConnection() {
   try {

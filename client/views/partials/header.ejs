@@ -13,10 +13,11 @@
 <script>
   $(document).ready(function() {
 
+    getFooterContent().then(element => {
+      $("#footer").append(element);
+    });
+
     getContractOwner().then(owner => {
-
-      $("#footer").append("<span>Contract owner: "+ owner +"</span>");
-
       if (owner.toLowerCase() == ethereum.selectedAddress.toLowerCase()) {
         let priceNav = `
           <li>
