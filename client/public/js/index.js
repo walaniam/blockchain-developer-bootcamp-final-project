@@ -59,32 +59,7 @@ async function showOrganizerEvents(containerSelector) {
   }
 
   for (let i = entries.length - 1; i >= 0 ; i--) {
-    var entry = entries[i];
-    var registrantsCount = await contract.methods.getNumberOfRegisteredUsersForEvent(entry.id).call({from: ethereum.selectedAddress});
-    var row = `
-      <div class="row">
-        <div class="col-md-6">
-          <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-          <span>Spots: ${entry.spots}</span><br/>
-          <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
-          <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          <span>Registered users: ${registrantsCount}</span><br/>
-          <button id="close-button-${entry.id}">Close registration</button>
-        </div>
-        <hr/>
-      </div>
-    `;
-
-    $(row).appendTo(container);
-
-    $('#close-button-' + entry.id).click(function() {
-      var eventId = $(this).attr('id').split('-')[2];
-      var errCallback = function(err) {
-        $('#mm-status').html("Failed: " + err.message);
-      };
-      closeEvent(eventId, errCallback)
-        .catch(err => errCallback);
-    });    
+    appendEventDetailsTo(entries[i], containerSelector);
   }
 }
 
@@ -113,20 +88,7 @@ async function showParticipantEvents(containerSelector) {
 
   for (let i = entryIds.length - 1; i >= 0; i--) {
     _eventById(entryIds[i], contract).then(entry => {
-      var row = `
-        <div class="row">
-          <div class="col-md-6">
-            <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-            <span>Spots: ${entry.spots}</span><br/>
-            <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
-            <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          </div>
-          <hr/>
-        </div>
-      `;
-
-      $(row).appendTo(container);
-      
+      appendEventDetailsTo(entry, containerSelector);
     });
   }
 }
@@ -147,20 +109,7 @@ async function showRegistrantEvents(containerSelector) {
 
   for (let i = entryIds.length - 1; i >= 0; i--) {
     _eventById(entryIds[i], contract).then(entry => {
-      var row = `
-        <div class="row">
-          <div class="col-md-6">
-            <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-            <span>Spots: ${entry.spots}</span><br/>
-            <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
-            <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          </div>
-          <hr/>
-        </div>
-      `;
-
-      $(row).appendTo(container);
-      
+      appendEventDetailsTo(entry, containerSelector);
     });
   }
 }
@@ -204,13 +153,17 @@ async function _eventById(eventId, contract) {
   return entry;
 }
 
-async function showActiveEvents(containerSelector) {
+async function isEventClosed(eventId) {
+  let contract = await getContract(new Web3(window.ethereum));
+  let isClosed = await contract.methods.isEventClosed(eventId).call();
+  console.log("event for id=" + eventId + ", closed=" + isClosed);
+  return isClosed;
+}
 
+async function showActiveEvents(containerSelector) {
   let contract = await getContract(new Web3(window.ethereum));
   let count = await contract.methods.getEntriesCount().call();
   
-  let container = $(containerSelector);
-
   var anyAdded = false;
   for (let i = count - 1; i >= 0; i--) {
     var entry = await contract.methods.entries(i).call();
@@ -218,53 +171,11 @@ async function showActiveEvents(containerSelector) {
       continue;
     }
     anyAdded = true;
-    let row = `
-      <div class="row">
-        <div id="row-${i}" class="col-md-6">
-          <h3><span class="glyphicon glyphicon-flash"></span> <a href="/event-details?id=${entry.id}">${entry.title}</a></h3>
-          <span>Spots: ${entry.spots}</span><br/>
-          <span>Registration due date: ${formatDateOf(entry.registrationDueDate)}</span><br/>
-          <span>Event date: ${formatDateOf(entry.eventDate)}</span><br/>
-          <span>Organizer: ${entry.organizer}</span><br/>
-        </div>
-        <hr/>
-      </div>
-    `;
-
-    $(row).appendTo(container);
-    
-    if (ethereum.selectedAddress.toLowerCase() != entry.organizer.toLowerCase()) {
-      
-      let isRegistered = await contract.methods.isRegisteredForEntry(i).call({from: ethereum.selectedAddress});
-
-      if (isRegistered) {
-        $('<span style="margin-top: 10px;">Already registered</span>').appendTo($('#row-' + entry.id));
-      } else {
-        var button = `<button id="register-button-${entry.id}">Register</button>`;
-        $(button).appendTo($('#row-' + entry.id));
-      }
-      
-    } else {
-      $('<span style="margin-top: 10px;">You are organizer</span>').appendTo($('#row-' + entry.id));
-    }
-
-    $('#register-button-' + entry.id).click(function() {
-      var eventId = $(this).attr('id').split('-')[2];
-      registerForEvent(eventId)
-        .then(result => {
-          alert("Registered event: " + result);
-          window.location = '/open-events';
-        })
-        .catch(err => {
-          alert(err.message);
-        });
-    });
-
-    console.log("Entry " + JSON.stringify(entry));
+    appendEventDetailsTo(entry, containerSelector);
   }
 
   if (!anyAdded) {
-    $('<h4><span>No events created yet. Want to create one?</span></h4>').appendTo(container);
+    $('<h4><span>No events created yet. Want to create one?</span></h4>').appendTo($(containerSelector));
   }
 }
 

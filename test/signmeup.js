@@ -154,6 +154,8 @@ contract("SignMeUp", accounts => {
         "test event", spots, registrationDueDate, eventDate, {from: organizer1, value: price}
     );
     var id = createResult.logs[0].args.id.toNumber();
+    var isClosed = await instance.isEventClosed(id);
+    assert.equal(isClosed, false, "Event should not be closed");
 
     // Await for the registration due date
     var waitFor = registrationSecondsFromNow + 1;
@@ -164,6 +166,8 @@ contract("SignMeUp", accounts => {
     var chooseResult = await instance.randomlyChooseEventParticipants(id, {from: organizer1});
     assert.equal(chooseResult.logs[0].args.id, id);
     assert.equal(chooseResult.logs[0].args.participants.length, 0);
+    isClosed = await instance.isEventClosed(id);
+    assert.equal(isClosed, true, "Event should be closed");
   });
 
 });

@@ -22,21 +22,21 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
     // All event entries
     SignUpEventEntry[] public entries;
 
+    /// @notice Keeps state of the SignUpEventEntry
+    /// @return true if event is closed
+    mapping(uint => bool) public isEventClosed;
+
     // Mapping of registered addresses by registration date for given entry
     mapping(uint => mapping(address => uint)) private entryRegistrationTimestamps;
 
     // Entries which user registered for
     mapping(address => uint[]) private registrantEntries;
 
-    // Entries which user was selected for
-    mapping(address => uint[]) private participantEntries;
-
     // Registrants for given SignUpEventEntry
     mapping(uint => address[]) private entryRegistrants;
 
-    // Participants for given SignUpEventEntry
-    mapping(uint => address[]) private entryParticipants;
     mapping(uint => uint[]) private entryTokens;
+    mapping(uint => uint) private tokenEntry;
     uint[] private allTokens;
 
     // Number of entries organized by user
@@ -75,7 +75,7 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
     modifier canSelectParticipants(uint eventId) {
         SignUpEventEntry memory entry = entries[eventId];
         require(
-            entryParticipants[eventId].length == 0 &&
+            isEventClosed[eventId] == false &&
                 entry.registrationDueDate != 0 &&
                 block.timestamp >= entry.registrationDueDate,
             "Event closed or not after registration date yet"
@@ -129,7 +129,7 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
         _;
     }
 
-    ////// Structs //////
+    /// @notice Structure holding information about created event, number of available spots, registration date and actual event date.
     struct SignUpEventEntry {
         uint id;
         address organizer;
@@ -143,8 +143,6 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
         entryPriceWei = 50_000 * 1_000_000_000;
     }
 
-    ////// Owner functions //////
-
     /// @notice Sets price that is paid by sender when creating a new SignUpEventEntry
     /// @param price price to be set
     /// @dev event emitted only when price has actually been change
@@ -155,8 +153,6 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
             emit LogPriceChanged(oldPrice, entryPriceWei);
         }
     }
-
-    ////// Common functions //////
 
     /// @return number of SignUpEventEntry objects
     function getEntriesCount() public view returns (uint) {
@@ -249,6 +245,7 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
         tokenIdCounter.increment();
         entryTokens[eventId].push(tokenId);
         allTokens.push(tokenId);
+        tokenEntry[tokenId] = eventId;
         _safeMint(to, tokenId);
     }
 
@@ -262,6 +259,7 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
     {
         // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
 
+        isEventClosed[eventId] = true;
         address[] memory registrants = entryRegistrants[eventId];
         address[] memory participants;
         if (registrants.length > 0) {
@@ -269,18 +267,14 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
                 registrants,
                 Math.min(registrants.length, entries[eventId].spots)
             );
-            entryParticipants[eventId] = participants;
             for (uint i = 0; i < participants.length; i++) {
                 address participant = participants[i];
-                participantEntries[participant].push(eventId);
                 safeMint(eventId, participant);
             }
         }
 
         emit LogEntryClosed(eventId, participants);
     }
-
-    ////// Registrant functions //////
 
     /// @notice register sender of this message for the event
     /// @param eventId SignUpEventEntry id
@@ -317,7 +311,17 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
 
     /// @return array of ids of entries given message sender has been selected for
     function getEntriesUserSelectedFor() public view returns (uint[] memory) {
-        return participantEntries[msg.sender];
+        uint tokensCount = balanceOf(msg.sender);
+        uint[] memory result = new uint[](tokensCount);
+        uint resultIndex = 0;
+        for (uint i = 0; tokensCount > 0 && i < allTokens.length; i++) {
+            uint tokenId = allTokens[i];
+            if (ownerOf(tokenId) == msg.sender) {
+                uint eventId = tokenEntry[tokenId];
+                result[resultIndex++] = eventId;
+            }
+        }
+        return result;
     }
 
     /// @notice Get number of registrants for given SignUpEventEntry
