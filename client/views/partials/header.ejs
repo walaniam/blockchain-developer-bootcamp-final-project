@@ -2,6 +2,7 @@
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/web3.min.js"></script>
 <script type="text/javascript" src="/stylesheets/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/event-details.js"></script>
 <script type="text/javascript" src="/js/http-utils.js"></script>
 <script type="text/javascript" src="/js/ethereum-utils.js"></script>
 <script type="text/javascript" src="/js/owner-functions.js"></script>
@@ -12,10 +13,12 @@
 
 <script>
   $(document).ready(function() {
+
+    getFooterContent().then(element => {
+      $("#footer").append(element);
+    });
+
     getContractOwner().then(owner => {
-
-      $("#footer").append("<span>Contract owner: "+ owner +"</span>");
-
       if (owner.toLowerCase() == ethereum.selectedAddress.toLowerCase()) {
         let priceNav = `
           <li>
@@ -24,7 +27,23 @@
         `;
         $(priceNav).appendTo($('#nav-bar-main'));
       }
-
     });
+
+    ethereum.on('chainChanged', (chainId) => {
+      window.location.reload();
+    });
+
+    ethereum.on('accountsChanged', (accounts) => {
+      window.location.reload();
+    });
+
+    ethereum.on('disconnect', (err) => {
+      window.location.reload();
+    });
+
+    ethereum.on('message', (message) => {
+      $('#mm-status').html(message);
+    });
+
   });
 </script>

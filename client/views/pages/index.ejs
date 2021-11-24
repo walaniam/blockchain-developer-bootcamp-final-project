@@ -8,6 +8,16 @@
         .then(result => $("#ctrt-value").html("Active events count: " + result));
     });
   </script>
+  <style>
+    .info {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: -10px;
+      padding-bottom: 20px;
+    }
+  </style>
 </head>
 
 <body>
@@ -17,7 +27,7 @@
 <div class="jumbotron text-center">
   <div class="container">
     <h1 style="margin-top: -15px;">Sign Me Up</h1>
-    <div style="margin-top: 15px;">
+    <div style="margin-top: 15px; margin-bottom: -20px;">
       <a type="button" class="btn btn-lg btn-default" href="/create-event"><span class="glyphicon glyphicon-plus"></span> Create Event</a>
       <a type="button" class="btn btn-lg btn-primary" href="/open-events"><span class="glyphicon glyphicon-ok"></span> Register</a>
     </div>
@@ -27,23 +37,23 @@
   <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
   <div id="ctrt-value" class="alert alert-info text-center" role="alert"></div>
   <hr>
-  <div class="row">
-    <div class="col-md-6">
-      <h3><span class="glyphicon glyphicon-info-sign"></span> How this sample app works</h3>
+  <div class="info">
+    <div>
+      <h3><span class="glyphicon glyphicon-question-sign"></span> How it works</h3>
       <ul>
-        <li>Lorem 1</li>
-        <li>Lorem 2</li>
-        <li>Lorem 3</li>
+        <li>
+          Imagine a situation when you're organizing some event but have actually less available spots than people who would like to attend. 
+        </li>
+        <li>
+          Imagine a situation when you want to register for an event with limited spots and others registered earlier... no spots left
+       </li>
+       <li>
+         With this dapp such problem dissappears. You can create the event, share it to ones that may be interested, give them some time for registration
+         and when the registration due date passes, you close the event and the dapp randomly chooses the participants.
+       </li>
       </ul>
     </div>
-    <div class="col-md-6">
-      <h3><span class="glyphicon glyphicon-link"></span> Something else</h3>
-      <ul>
-        <li>Ipsum 1</li>
-        <li>Ipsum 2</li>
-      </ul>
-    </div>
-  </div> <!-- row -->
+  </div>
 
   <%- include ("../partials/footer.ejs") %>
 

@@ -1,16 +1,14 @@
-# blockchain-developer-bootcamp-final-project
+# "Sign up" project
 
-## "Sign up" project
-
-### The problem
+## The problem
 
 Recently I wanted to sign up my kid for a school event with limited number of participants. The sign up process was a kind of "first come, first served". Unfortunately by the time I heard about the event, all the places were booked.
 
-### The solution
+## The solution
 
 My idea is to create a web site where people can register for an event. It should be transparent how many spots are available and what's the due date for registration. After the due date, the application automatically and randomly chooses who got successfully signed up.
 
-#### Example
+### Example
 
 1. Event is created with due date of 1st December 2021, 10 spots available.
 2. Link to this event is distributed externally (e.g. by email).
@@ -20,17 +18,6 @@ My idea is to create a web site where people can register for an event. It shoul
 
 # Development
 
-## Setup
-Run following scripts to install nodejs modules
-```shell
-install_modules.sh
-```
-
-Copy UI modules (only in case bootstrap, jquery or web3 version is changed in package.json)
-```shell
-copy_ui_modules.sh
-```
-
 ## Directory Structure
 
 client - UI code of nodejs application, written with https://ejs.co/, HTML5, https://jquery.com/ and https://getbootstrap.com/  
@@ -38,34 +25,66 @@ contracts - Solidity contracts
 migrations - Solidity contracts migrations  
 test - Solidity contracts js tests
 
-## Contracts
+## Setup
 
-Start a local development blockchain
+### Metamask plugin
+Install metamask plugin for your browser. It's a crypto wallet that you'll need to interact with this site. More on https://metamask.io/
+
+### Development tools
+
+The easiets way is to run it on some linux distribution or in case of Windows use [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) like [Ubuntu on WSL](https://ubuntu.com/wsl)
+
+Install [Node](https://nodejs.org/en/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), [heroku-cli](https://devcenter.heroku.com/articles/heroku-cli) and [truffle](https://www.trufflesuite.com/docs/truffle/getting-started/installation)
+
+This app has been tested with:
+- node v14.18.0
+- npm 6.14.15
+- truffle v5.4.19
+- Solidity 0.8.10
+
+### Clone and setup the project
+Clone the project with
+```shell
+git clone git@github.com:walaniam/blockchain-developer-bootcamp-final-project.git
+```
+
+Run following scripts to install nodejs modules
+```shell
+install_modules.sh
+```
+
+In case bootstrap, jquery or web3 version is changed in package.json you need to run below script
+```shell
+copy_ui_modules.sh
+```
+
+## How to run on local environment
+
+Start a local development blockchain. In project dir run below command.
 
 ```
 truffle develop
 ```
 
-Migrate the contract
+Once started migrate the contract into develop network.
 
 ```
 truffle migrate --network develop
 ```
 
-## UI (Client)
-
-### Pre-requisites
-
-Install [heroku-cli](https://devcenter.heroku.com/articles/heroku-cli)
-
-### Run locally
-
+Run the web client. In project root dir run below commands
 ```
 cd client
 heroku local web
 ```
 
-### Deploy to Heroku
+In case you need to deploy the contract to ropsten create .env file in project dir with following variables
+```shell
+MNEMONIC=
+INFURA_URL=
+```
+
+## Deploy to Heroku
 
 This applications uses https://elements.heroku.com/buildpacks/timanovsky/subdir-heroku-buildpack build pack.
 UI is built basing on https://devcenter.heroku.com/articles/getting-started-with-nodejs sample application.

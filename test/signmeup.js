@@ -7,7 +7,7 @@ function epochTime(plusSeconds) {
 }
 
 contract("SignMeUp", accounts => {
-  const [contractOwner, organizer1, organizer2, registrant1, registrant2, registrant3] = accounts;
+  const [contractOwner, organizer1, organizer2, registrant1, registrant2, registrant3, notRegistered] = accounts;
 
   beforeEach(async () => {
     instance = await SignMeUp.deployed();
@@ -25,7 +25,7 @@ contract("SignMeUp", accounts => {
 
     const price = await instance.entryPriceWei.call();
 
-    var createResult = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});    
+    var createResult = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});
     assert.equal(
       createResult.logs[0].args.id.toNumber(),
       0,
@@ -97,9 +97,9 @@ contract("SignMeUp", accounts => {
     const price = await instance.entryPriceWei.call();
     var unused = await instance.createNewSignUpEventEntry("test event", 3, 2236885594, 2236895594, {from: organizer1, value: price});    
 
-    var registrationSecondsFromNow = 2;
+    var registrationSecondsFromNow = 5;
     const registrationDueDate = epochTime(registrationSecondsFromNow);
-    const eventDate = epochTime(4);
+    const eventDate = epochTime(registrationSecondsFromNow + 2);
 
     const spots = 2;
     var createResult = await instance.createNewSignUpEventEntry(
@@ -119,14 +119,55 @@ contract("SignMeUp", accounts => {
     assert.equal(registrant1Ids[0], id);
     assert.equal(registrant2Ids[0], id);
     assert.equal(registrant3Ids[0], id);
+    assert.isTrue(await instance.isRegisteredForEntry(id, {from: registrant1}));
+    assert.isTrue(await instance.isRegisteredForEntry(id, {from: registrant2}));
+    assert.isTrue(await instance.isRegisteredForEntry(id, {from: registrant3}));
+    assert.isFalse(await instance.isRegisteredForEntry(id, {from: notRegistered}));
 
     // Await for the registration due date
-    await new Promise(r => setTimeout(r, (registrationSecondsFromNow + 1) * 1000));
+    var waitFor = registrationSecondsFromNow + 1;
+    console.log("About to wait for " + waitFor + " seconds");
+    await new Promise(r => setTimeout(r, waitFor * 1000));
 
     // Organizer randomly chooses participants of the event
     var chooseResult = await instance.randomlyChooseEventParticipants(id, {from: organizer1});
+    assert.equal(chooseResult.logs[2].args.id, id);
+    assert.equal(chooseResult.logs[2].args.participants.length, spots);
+
+    for (let i = 0; i < chooseResult.logs[2].args.participants.length; i++) {
+      var selectedParticipant = chooseResult.logs[2].args.participants[i];
+      var entries = await instance.getEntriesUserSelectedFor({from: selectedParticipant});
+      assert.equal(entries.length, 1);
+      assert.equal(entries[0], id);
+    }
+  });
+
+  it("should create new SignUpEntry and do nothing when close empty event", async () => {
+
+    const price = await instance.entryPriceWei.call();
+    var registrationSecondsFromNow = 2;
+    const registrationDueDate = epochTime(registrationSecondsFromNow);
+    const eventDate = epochTime(4);
+
+    const spots = 2;
+    var createResult = await instance.createNewSignUpEventEntry(
+        "test event", spots, registrationDueDate, eventDate, {from: organizer1, value: price}
+    );
+    var id = createResult.logs[0].args.id.toNumber();
+    var isClosed = await instance.isEventClosed(id);
+    assert.equal(isClosed, false, "Event should not be closed");
+
+    // Await for the registration due date
+    var waitFor = registrationSecondsFromNow + 1;
+    console.log("About to wait for " + waitFor + " seconds");
+    await new Promise(r => setTimeout(r, waitFor * 1000));
+
+    // Organizer randomly chooses participants of the event... no one registered
+    var chooseResult = await instance.randomlyChooseEventParticipants(id, {from: organizer1});
     assert.equal(chooseResult.logs[0].args.id, id);
-    assert.equal(chooseResult.logs[0].args.participants.length, spots);
+    assert.equal(chooseResult.logs[0].args.participants.length, 0);
+    isClosed = await instance.isEventClosed(id);
+    assert.equal(isClosed, true, "Event should be closed");
   });
 
 });

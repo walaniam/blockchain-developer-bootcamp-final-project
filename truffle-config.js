@@ -1,7 +1,17 @@
 const path = require("path");
+const fs = require('fs');
 const HDWalletProvider = require('@truffle/hdwallet-provider');
+
 const dotenv = require('dotenv');
-dotenv.config({path:__dirname+'/../.env'});
+const envPath = __dirname + '/../.env';
+const envPathLocalDir = __dirname + '/.env';
+if (fs.existsSync(envPath)) {
+  console.log("Loading .env from: " + envPath);
+  dotenv.config({path: envPath});
+} else if (fs.existsSync(envPathLocalDir)) {
+  console.log("Loading .env from: " + envPathLocalDir);
+  dotenv.config({path: envPathLocalDir});
+}
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>

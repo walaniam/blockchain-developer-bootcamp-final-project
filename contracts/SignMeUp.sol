@@ -1,20 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title SignMeUp
 /// @author Mariusz Walania
 /// @notice Contract owner gets paid small fee for each SignUpEventEntry created. Users can register to SignUpEventEntry. Once due date passes, SignUpEventEntry organizer can randomly choose selected participants of the event.
-contract SignMeUp is ERC20, Ownable {
+contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
+    using Counters for Counters.Counter;
+
+    Counters.Counter private tokenIdCounter;
+
     /// @return wei price paid for newly created SignUpEventEntry
     uint public entryPriceWei;
 
     // All event entries
     SignUpEventEntry[] public entries;
+
+    /// @notice Keeps state of the SignUpEventEntry
+    /// @return true if event is closed
+    mapping(uint => bool) public isEventClosed;
 
     // Mapping of registered addresses by registration date for given entry
     mapping(uint => mapping(address => uint)) private entryRegistrationTimestamps;
@@ -22,14 +32,12 @@ contract SignMeUp is ERC20, Ownable {
     // Entries which user registered for
     mapping(address => uint[]) private registrantEntries;
 
-    // Entries which user was selected for
-    mapping(address => uint[]) private participantEntries;
-
     // Registrants for given SignUpEventEntry
     mapping(uint => address[]) private entryRegistrants;
 
-    // Participants for given SignUpEventEntry
-    mapping(uint => address[]) private entryParticipants;
+    mapping(uint => uint[]) private entryTokens;
+    mapping(uint => uint) private tokenEntry;
+    uint[] private allTokens;
 
     // Number of entries organized by user
     mapping(address => uint) private organizerEntriesCount;
@@ -67,10 +75,10 @@ contract SignMeUp is ERC20, Ownable {
     modifier canSelectParticipants(uint eventId) {
         SignUpEventEntry memory entry = entries[eventId];
         require(
-            entryParticipants[eventId].length == 0 &&
+            isEventClosed[eventId] == false &&
                 entry.registrationDueDate != 0 &&
                 block.timestamp >= entry.registrationDueDate,
-            "Already selected or not after registration date yet"
+            "Event closed or not after registration date yet"
         );
         _;
     }
@@ -121,7 +129,7 @@ contract SignMeUp is ERC20, Ownable {
         _;
     }
 
-    ////// Structs //////
+    /// @notice Structure holding information about created event, number of available spots, registration date and actual event date.
     struct SignUpEventEntry {
         uint id;
         address organizer;
@@ -131,24 +139,20 @@ contract SignMeUp is ERC20, Ownable {
         uint64 eventDate;
     }
 
-    constructor() ERC20("SignMeUp", "SMU") {
+    constructor() ERC721("SignMeUp", "SMU") {
         entryPriceWei = 50_000 * 1_000_000_000;
     }
-
-    ////// Owner functions //////
 
     /// @notice Sets price that is paid by sender when creating a new SignUpEventEntry
     /// @param price price to be set
     /// @dev event emitted only when price has actually been change
-    function setPrice(uint price) public onlyOwner {
+    function setPrice(uint price) public onlyOwner nonReentrant {
         if (entryPriceWei != price) {
             uint oldPrice = entryPriceWei;
             entryPriceWei = price;
             emit LogPriceChanged(oldPrice, entryPriceWei);
         }
     }
-
-    ////// Common functions //////
 
     /// @return number of SignUpEventEntry objects
     function getEntriesCount() public view returns (uint) {
@@ -160,13 +164,12 @@ contract SignMeUp is ERC20, Ownable {
     /// @param spots number of available spots
     /// @param registrationDueDate epoch time (seconds) until when users can register for the event
     /// @param eventDate epoch time (seconds) of the event
-    /// @return entry id
     function createNewSignUpEventEntry(
         string memory title,
         uint spots,
         uint64 registrationDueDate,
         uint64 eventDate
-    ) public payable paidEnough returns (uint) {
+    ) public payable paidEnough {
         SignUpEventEntry memory entry = newSignUpEventEntryOf(
             title,
             spots,
@@ -178,8 +181,6 @@ contract SignMeUp is ERC20, Ownable {
         _owner.transfer(msg.value);
 
         emit LogEntryCreated(entry.id, entry.organizer);
-
-        return entry.id;
     }
 
     function newSignUpEventEntryOf(
@@ -239,26 +240,41 @@ contract SignMeUp is ERC20, Ownable {
         return result;
     }
 
+    function safeMint(uint eventId, address to) private isOrganizer(eventId) {
+        uint tokenId = tokenIdCounter.current();
+        tokenIdCounter.increment();
+        entryTokens[eventId].push(tokenId);
+        allTokens.push(tokenId);
+        tokenEntry[tokenId] = eventId;
+        _safeMint(to, tokenId);
+    }
+
     /// @notice Randomly chooses participants of given SignUpEventEntry from the list of registrants for this event
     /// @param eventId id of SignUpEventEntry
     function randomlyChooseEventParticipants(uint eventId)
         public
         isOrganizer(eventId)
         canSelectParticipants(eventId)
+        nonReentrant
     {
         // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
 
+        isEventClosed[eventId] = true;
         address[] memory registrants = entryRegistrants[eventId];
-        address[] memory participants = pseudoRandomAddresses(
-            registrants,
-            Math.min(registrants.length, entries[eventId].spots)
-        );
-        entryParticipants[eventId] = participants;
+        address[] memory participants;
+        if (registrants.length > 0) {
+            participants = pseudoRandomAddresses(
+                registrants,
+                Math.min(registrants.length, entries[eventId].spots)
+            );
+            for (uint i = 0; i < participants.length; i++) {
+                address participant = participants[i];
+                safeMint(eventId, participant);
+            }
+        }
 
         emit LogEntryClosed(eventId, participants);
     }
-
-    ////// Registrant functions //////
 
     /// @notice register sender of this message for the event
     /// @param eventId SignUpEventEntry id
@@ -267,7 +283,7 @@ contract SignMeUp is ERC20, Ownable {
         isBeforeRegistrationDate(eventId)
         isNotRegistered(eventId)
         isNotOrganizer(eventId)
-        returns (uint)
+        nonReentrant
     {
         uint registrationTimestamp = block.timestamp;
 
@@ -279,8 +295,6 @@ contract SignMeUp is ERC20, Ownable {
         entryRegistrants[eventId].push(msg.sender);
 
         emit LogRegistered(eventId, msg.sender, registrationTimestamp);
-
-        return registrationTimestamp;
     }
 
     /// @return array of ids of entries given message sender registered for
@@ -288,9 +302,38 @@ contract SignMeUp is ERC20, Ownable {
         return registrantEntries[msg.sender];
     }
 
+    /// @notice Checks if message sender is registered for given event
+    /// @param eventId event id
+    /// @return true if registered, false otherwise
+    function isRegisteredForEntry(uint eventId) public view returns (bool) {
+        return entryRegistrationTimestamps[eventId][msg.sender] > 0;
+    }
+
     /// @return array of ids of entries given message sender has been selected for
     function getEntriesUserSelectedFor() public view returns (uint[] memory) {
-        return participantEntries[msg.sender];
+        uint tokensCount = balanceOf(msg.sender);
+        uint[] memory result = new uint[](tokensCount);
+        uint resultIndex = 0;
+        for (uint i = 0; tokensCount > 0 && i < allTokens.length; i++) {
+            uint tokenId = allTokens[i];
+            if (ownerOf(tokenId) == msg.sender) {
+                uint eventId = tokenEntry[tokenId];
+                result[resultIndex++] = eventId;
+            }
+        }
+        return result;
+    }
+
+    /// @notice Get number of registrants for given SignUpEventEntry
+    /// @param eventId event id
+    /// @return number of registrants
+    function getNumberOfRegisteredUsersForEvent(uint eventId)
+        public
+        view
+        isOrganizer(eventId)
+        returns (uint)
+    {
+        return entryRegistrants[eventId].length;
     }
 
     /// @notice pseudo number way of selecting participants

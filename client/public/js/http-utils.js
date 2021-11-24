@@ -18,6 +18,10 @@ function epochTimeOf(localDateTime) {
     return new Date(localDateTime).getTime() / 1000;
 }
 
+function epochTimeNow() {
+    return new Date().getTime() / 1000;
+}
+
 function formatDateOf(timestamp) {
     // console.log("timestamp: " + timestamp);
     try {
@@ -37,4 +41,8 @@ function defaultDateTime(plusDays) {
     var adjustedDate = new Date(now.getTime() - offset);
     var formattedDate = adjustedDate.toISOString().substring(0,16); // For minute precision
     return formattedDate;
+}
+
+function isBlank(str) {
+    return (!str || /^\s*$/.test(str));
 }

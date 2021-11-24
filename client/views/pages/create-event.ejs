@@ -28,16 +28,22 @@
         let eventDate = epochTimeOf($('#event-date').val());
         if (eventDate < dueDate) {
           alert("Registration due date must be before event date");
+        } else if (spots < 1) {
+          alert("Spots must be positive integer");
+        } else if (isBlank(title)) {
+          alert('Title cannot be blank');
         } else if (confirm("Create event? Title: " + title)) {
           console.log("Creating event: " + title + " " + spots + " " + dueDate + " " + eventDate);
-          createEvent(title, spots, dueDate, eventDate)
-            .then(id => {
-              alert("Event created: " + id);
-              window.location = "/event-details?id=" + id;
-            })
-            .catch(err => {
-              alert(err.message);
-            });
+          $("#create-event-form :input").prop("disabled", true);
+          var awaitCallback = function() {
+            $("#create-event-form").css("display","none");
+          };
+          var errCallback = function(err) {
+            $("#create-event-form :input").prop("disabled", false);
+            $('#mm-status').html("Failed: " + err.message);
+          };
+          createEvent(title, spots, dueDate, eventDate, awaitCallback, errCallback)
+            .catch(err => errCallback);
         }
       });
 
@@ -52,8 +58,8 @@
 <div class="container">
   <div id="mm-status" class="alert alert-info text-center" role="alert"></div>
   <hr>
-  <div class="row">
-    <div class="col-md-6">
+  <div class="row" style="width: 100%;">
+    <div class="col-md-6" style="width: 100%;">
       <div class="text-left"><h3>Create New Event - only for <span id="event-price"></span> Gwei</h3></div>
       <form id="create-event-form" style="margin-top: 15px; margin-bottom: 15px;" action="">
         <div class="input-group" style="margin-bottom: 10px;">
