@@ -19,17 +19,21 @@
 
       $("#set-price-form").submit(function(e) {
         e.preventDefault();
-        let gweiPrice = $('#price').val();
-        let price = gweiPrice * 1_000_000_000;
-        if (confirm("Set new price to: " + gweiPrice)) {
-          console.log("Setting price to " + gweiPrice + " Gwei");
-          setPrice(price)
-            .then(() => {
-              window.location = "/set-price";
-            })
-            .catch(err => {
-              alert(err.message);
-            });
+        var gweiPrice = $('#price').val();
+        if (isNaN(gweiPrice) || gweiPrice < 0) {
+          alert("Spots must be non-negative integer");
+        } else {
+          var price = gweiPrice * 1_000_000_000;
+          if (confirm("Set new price to: " + gweiPrice)) {
+            console.log("Setting price to " + gweiPrice + " Gwei");
+            setPrice(price)
+              .then(() => {
+                window.location = "/set-price";
+              })
+              .catch(err => {
+                alert(err.message);
+              });
+          }
         }
       });
 
