@@ -60,22 +60,27 @@ copy_ui_modules.sh
 
 ## How to run on local environment
 
-Start a local development blockchain. In project dir run below command.
+Start a local development blockchain network. In project dir run below command.
 
 ```
 truffle develop
 ```
 
-Once started, migrate the contract into develop network.
+In the develop console migrate the contract into develop network.
 
 ```
-truffle migrate --network develop
+migrate --network develop
 ```
 
 Run the web client. In project root dir run below commands
 ```
 cd client
 heroku local web
+```
+
+After making changes to contract run build pipeline to copy compiled contract to client location. In project root dir run
+```
+truffle build
 ```
 
 In case you need to deploy the contract to ropsten create .env file in project dir with following variables
