@@ -78,11 +78,6 @@ cd client
 heroku local web
 ```
 
-After making changes to contract run build pipeline to copy compiled contract to client location. In project root dir run
-```
-truffle build
-```
-
 In case you need to deploy the contract to ropsten create .env file in project dir with following variables
 ```shell
 MNEMONIC=
