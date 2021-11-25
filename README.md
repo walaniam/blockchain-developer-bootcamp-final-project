@@ -66,7 +66,7 @@ Start a local development blockchain. In project dir run below command.
 truffle develop
 ```
 
-Once started migrate the contract into develop network.
+Once started, migrate the contract into develop network.
 
 ```
 truffle migrate --network develop
