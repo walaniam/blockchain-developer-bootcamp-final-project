@@ -33,15 +33,14 @@ async function closeEvent(eventId, errorCallback) {
     .on('transactionHash', function(hash) {
       $('#mm-status').html("Transaction " + hash + " in progress. It may take up to few minutes to complete");
     })
-    .on('confirmation', function(confirmationNumber, receipt) {
-      alert('conf');
+    .on('confirmation', function(confirmationNumber, receipt) {      
       $('#mm-status').html("Confirmed: " + receipt);
     })
     .on('receipt', function(receipt) {
       console.log("Event closed: " + JSON.stringify(receipt));
       window.location = '/my-events';
     })
-    .on('error', errorCallback);    
+    .on('error', errorCallback);
 }
 
 async function showOrganizerEvents(containerSelector) {
@@ -64,11 +63,22 @@ async function showOrganizerEvents(containerSelector) {
 }
 
 ////// Registrant functions ///////
-async function registerForEvent(eventId) {
+async function registerForEvent(eventId, errorCallback) {
   var contract = await getContract(new Web3(window.ethereum));
-  var transaction = await contract.methods.registerForEvent(eventId).send({from: ethereum.selectedAddress});
-  console.log(JSON.stringify(transaction));
-  return eventId;
+  contract.methods
+    .registerForEvent(eventId)
+    .send({from: ethereum.selectedAddress})
+    .on('transactionHash', function(hash) {
+      $('#mm-status').html("Transaction " + hash + " in progress. It may take up to few minutes to complete");
+    })
+    .on('confirmation', function(confirmationNumber, receipt) {      
+      $('#mm-status').html("Confirmed: " + receipt);
+    })
+    .on('receipt', function(receipt) {
+      console.log("Registered for event: " + JSON.stringify(receipt));
+      window.location = '/event-details?id=' + eventId;
+    })
+    .on('error', errorCallback);    
 }
 
 ////// Participant functions ///////

@@ -26,13 +26,11 @@
           var price = gweiPrice * 1_000_000_000;
           if (confirm("Set new price to: " + gweiPrice)) {
             console.log("Setting price to " + gweiPrice + " Gwei");
-            setPrice(price)
-              .then(() => {
-                window.location = "/set-price";
-              })
-              .catch(err => {
-                alert(err.message);
-              });
+            var errCallback = function (err) {
+              $('#mm-status').html("Failed: " + err.message);
+            };
+            setPrice(price, errCallback)
+              .catch(err => errCallback(err));
           }
         }
       });

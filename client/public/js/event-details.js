@@ -30,14 +30,13 @@ function appendEventDetailsTo(entry, containerSelector) {
                 $(button).appendTo($('#details-' + entry.id));
                 $('#register-button-' + entry.id).click(function () {
                     var eventId = $(this).attr('id').split('-')[2];
-                    registerForEvent(eventId)
-                        .then(result => {
-                            alert("Registered for event: " + result);
-                            window.location = '/open-events';
-                        })
-                        .catch(err => {                            
-                            $('#mm-status').html("Failed: " + err.message);
-                        });
+                    var errCallback = function (err) {
+                        $('#mm-status').html("Failed: " + err.message);
+                    };
+                    if (confirm("Register for event?")) {
+                        registerForEvent(eventId, errCallback)
+                            .catch(err => errCallback(err));
+                    }
                 });
             }
         });
@@ -56,8 +55,10 @@ function appendEventDetailsTo(entry, containerSelector) {
                     var errCallback = function (err) {
                         $('#mm-status').html("Failed: " + err.message);
                     };
-                    closeEvent(eventId, errCallback)
-                        .catch(err => errCallback);
+                    if (confirm("Close event?")) {
+                        closeEvent(eventId, errCallback)
+                            .catch(err => errCallback(err));
+                    }
                 });
             } else {
                 $("#close-button-" + entry.id).prop('disabled', true).css('color', "#999");

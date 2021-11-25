@@ -58,6 +58,18 @@ In case bootstrap, jquery or web3 version is changed in package.json you need to
 copy_ui_modules.sh
 ```
 
+Create .env file in project dir with following variables
+```shell
+# Metamask mnemonic
+MNEMONIC=
+# Infura project URL
+INFURA_URL=
+# Account address of contract owner in develop network
+DEVELOP_FROM=
+# Account address of contract owner in ropsten network
+ROPSTEN_FROM=
+```
+
 ## How to run on local environment
 
 Start a local development blockchain network. In project dir run below command.
@@ -76,12 +88,6 @@ Run the web client. In project root dir run below commands
 ```
 cd client
 heroku local web
-```
-
-In case you need to deploy the contract to ropsten create .env file in project dir with following variables
-```shell
-MNEMONIC=
-INFURA_URL=
 ```
 
 ## Deploy to Heroku
