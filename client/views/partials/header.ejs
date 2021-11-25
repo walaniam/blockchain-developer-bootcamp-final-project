@@ -14,6 +14,9 @@
 <script>
   $(document).ready(function() {
 
+    getActiveEventsCount()
+        .then(result => $("#ctrt-value").html("Active events count: " + result));
+
     getFooterContent().then(element => {
       $("#footer").append(element);
     });

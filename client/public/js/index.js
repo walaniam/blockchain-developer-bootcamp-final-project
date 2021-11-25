@@ -197,25 +197,17 @@ async function getFooterContent() {
   var address = contract.options.address;
   console.log('Contract address: ' + address);
   
-  if (netId == 1) {
-    var etherScanUrl = 'https://etherscan.io/address/';
-  } else if (netId == 3) {
-    var etherScanUrl = 'https://ropsten.etherscan.io/address/';
-  } else if (netId == 4) {
-    var etherScanUrl = 'https://rinkeby.etherscan.io/';
-  } else {
-    var etherScanUrl = '';
-  }
+  var etherScanUrl = etherScanUrlOf(netId);
 
   if (netId > 4) {
     var footerContent = `
-      <span>Contract owner: ${owner}</span><br/>
-      <span style="margin-top: 25px;">Contract address: ${address}</span>
+      <span>Contract owner: ${addressLabelOf(owner, netId)}</span><br/>
+      <span style="margin-top: 25px;">Contract address: ${addressLabelOf(address, netId)}</span>
     `;
   } else {
     var footerContent = `
-      <span>Contract owner: <a target="_blank" href="${etherScanUrl + owner}">${owner}</a></span><br/>
-      <span style="margin-top: 25px;">Contract address: <a target="_blank" href="${etherScanUrl + address}">${address}</a></span>
+      <span>Contract owner: <a target="_blank" href="${etherScanUrl + owner}">${addressLabelOf(owner, netId)}</a></span><br/>
+      <span style="margin-top: 25px;">Contract address: <a target="_blank" href="${etherScanUrl + address}">${addressLabelOf(address, netId)}</a></span>
     `;
   }
 

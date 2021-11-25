@@ -7,7 +7,9 @@ async function detectMetamask() {
         try {
           // ask user permission to access his accounts
           await window.ethereum.request({ method: "eth_requestAccounts" });
-          $('#mm-status').html('Account: ' + ethereum.selectedAddress);
+          var netId = await web3.eth.net.getId();
+          var addressLabel = addressLabelOf(ethereum.selectedAddress, netId);
+          $('#mm-status').html('Account: ' + addressLabel);
           resolve(web3);
         } catch (error) {
           reject(error);
@@ -34,3 +36,39 @@ async function getContract(web3) {
 
   return signMeUp;
 };
+
+function networkNameOf(networkId) {
+  if (networkId == 1) {
+    return 'mainnet';
+  } else if (networkId == 3) {
+    return 'ropsten';
+  } else if (networkId == 4) {
+    return 'rinkeby';
+  } else {
+    return 'local';
+  }
+}
+
+function etherScanUrlOf(networkId) {
+  if (networkId == 1) {
+    return 'https://etherscan.io/address/';
+  } else if (networkId == 3) {
+    return 'https://ropsten.etherscan.io/address/';
+  } else if (networkId == 4) {
+    return 'https://rinkeby.etherscan.io/';
+  } else {
+    return '';
+  }
+}
+
+function addressLabelOf(address, networkId) {
+  var network = networkNameOf(networkId);
+  var addressPrefix = address.substring(0, 5);
+  if (address.length > 9) {
+    var addressSuffix = address.substring(address.length - 4);
+  } else {
+    var addressSuffix = '';
+  }
+  var label = `(${network}) ${addressPrefix}...${addressSuffix}`;
+  return label;
+}
