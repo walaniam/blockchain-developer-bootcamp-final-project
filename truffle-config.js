@@ -40,26 +40,4 @@ module.exports = {
       version: "0.8.10",
     }
   }
-  // build: function(options, callback) {
-  //   console.log("=== Running custom build script ===");
-  //   // working_directory: root location of the project
-  //   // contracts_directory: root directory of .sol files
-  //   // destination_directory: directory where truffle expects the built assets (important for `truffle serve`)
-  //   var compiledContractFile = path.join(options.destination_directory, "contracts/SignMeUp.json");
-  //   var clientTargetDir = path.join(options.working_directory, "client/public/contracts/");
-  //   var clientTargetContractFile = path.join(clientTargetDir, "SignMeUp.json");
-
-  //   if (!fs.existsSync(clientTargetDir)) {
-  //     throw new Error("Target dir not found: " + clientTargetDir);
-  //   }
-
-  //   if (!fs.existsSync(compiledContractFile)) {
-  //     throw new Error("Compiled contract not found: " + compiledContractFile);
-  //   }
-
-  //   console.log("Copying " + compiledContractFile + " to " + clientTargetContractFile);
-  //   fs.copyFile(compiledContractFile, clientTargetContractFile, function(err) {
-  //     if (err) throw err
-  //   });
-  // }
 };
