@@ -60,16 +60,16 @@ copy_ui_modules.sh
 
 ## How to run on local environment
 
-Start a local development blockchain. In project dir run below command.
+Start a local development blockchain network. In project dir run below command.
 
 ```
 truffle develop
 ```
 
-Once started migrate the contract into develop network.
+In the develop console migrate the contract into develop network.
 
 ```
-truffle migrate --network develop
+migrate --network develop
 ```
 
 Run the web client. In project root dir run below commands
