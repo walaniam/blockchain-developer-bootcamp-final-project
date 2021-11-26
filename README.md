@@ -16,6 +16,10 @@ My idea is to create a web site where people can register for an event. It shoul
 4. At the due date, the application randomly chooses among the registrants, 10 lucky ones who got signed up.
 5. The result of sign up proess is avaiable on the event site.<br/><br/>
 
+# Sample deployment
+
+This dapp is available on Heroku hosting https://sign-me-up-dapp.herokuapp.com/
+
 # Development
 
 ## Directory Structure
