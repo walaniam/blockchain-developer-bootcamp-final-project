@@ -1,7 +1,7 @@
 {
   "name": "sign-me-up-dapp",
-  "version": "0.0.1",
-  "description": "",
+  "version": "1.0.0",
+  "description": "Bootcamp sample dapp",
   "author": "Mariusz Walania",
   "license": "ISC",
   "dependencies": {

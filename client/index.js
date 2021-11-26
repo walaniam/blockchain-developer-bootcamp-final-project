@@ -5,6 +5,9 @@ const PORT = process.env.PORT || 5000
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
+  .use('/node/jquery', express.static(__dirname + '/node_modules/jquery/dist/'))
+  .use('/node/web3', express.static(__dirname + '/node_modules/web3/dist/'))
+  .use('/node/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
   .get('/', (req, res) => res.render('pages/index'))

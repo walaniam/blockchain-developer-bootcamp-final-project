@@ -52,49 +52,66 @@ Clone the project with
 git clone git@github.com:walaniam/blockchain-developer-bootcamp-final-project.git
 ```
 
-Run following scripts to install nodejs modules
+In project root dir initialize node app
 ```shell
-install_modules.sh
+npm install
 ```
 
-In case bootstrap, jquery or web3 version is changed in package.json you need to run below script
+Initialize client app
 ```shell
-copy_ui_modules.sh
+cd client
+npm install
 ```
 
-Create .env file in project dir with following variables
+## How to run on local blockchain network
+
+To start a local development blockchain network run following command in project root dir
+
+```
+npm start
+```
+
+Once local network is started you'll see some sample accounts with their private keys that can be used locally.
+Import some of the private keys into your metamask browser plugin - you can then use these accounts for local development.  
+
+Create .env file in project root dir. Fill in one of the generated account address into this file.
 ```shell
-# Metamask mnemonic
-MNEMONIC=
-# Infura project URL
-INFURA_URL=
 # Account address of contract owner in develop network
-DEVELOP_FROM=
-# Account address of contract owner in ropsten network
-ROPSTEN_FROM=
+DEVELOP_FROM=<set one of the account addresses here>
 ```
-
-## How to run on local environment
-
-Start a local development blockchain network. In project dir run below command.
-
-```
-truffle develop
-```
-
-In the develop console migrate the contract into develop network.
 
 ```
 migrate --network develop
 ```
 
-Run the web client. In project root dir run below commands
+## How to test the contracts
+
+To test contracts run following command in project root dir
 ```
-cd client
-heroku local web
+npm test
 ```
 
-## Deploy to Heroku
+## How to run local web client
+In project root dir run below commands
+```
+cd client
+npm start
+```
+
+## Migrate contract to ropsten network
+For ropsten development create .env_ropsten file in project dir with following variables
+```shell
+# Metamask mnemonic
+MNEMONIC=
+# Infura project URL
+INFURA_URL=
+# Account address of contract owner in ropsten network
+ROPSTEN_FROM=
+```
+
+Run ```npm start``` and then ```migrate --network ropsten```
+
+## Deploy dapp to Heroku
 
 This applications uses https://elements.heroku.com/buildpacks/timanovsky/subdir-heroku-buildpack build pack.
 UI is built basing on https://devcenter.heroku.com/articles/getting-started-with-nodejs sample application.
