@@ -324,6 +324,27 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
         return result;
     }
 
+    /// @notice Get participant of SignUpEvenEntry
+    /// @param eventId event id to get participants of
+    /// @return participant addresses
+    function getEventParticipants(uint eventId)
+        public
+        view
+        isOrganizer(eventId)
+        returns (address[] memory)
+    {
+        if (isEventClosed[eventId] == false) {
+            return new address[](0);
+        } else {
+            uint[] memory tokens = entryTokens[eventId];
+            address[] memory tokenOwners = new address[](tokens.length);
+            for (uint i = 0; i < tokens.length; i++) {
+                tokenOwners[i] = ownerOf(tokens[i]);
+            }
+            return tokenOwners;
+        }
+    }
+
     /// @notice Get number of registrants for given SignUpEventEntry
     /// @param eventId event id
     /// @return number of registrants
