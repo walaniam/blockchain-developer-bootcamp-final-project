@@ -257,8 +257,6 @@ contract SignMeUp is ERC721, Ownable, ReentrancyGuard {
         canSelectParticipants(eventId)
         nonReentrant
     {
-        // TODO use some 'random' oracle, choose participants from registeres users and change state to Closed
-
         isEventClosed[eventId] = true;
         address[] memory registrants = entryRegistrants[eventId];
         address[] memory participants;
