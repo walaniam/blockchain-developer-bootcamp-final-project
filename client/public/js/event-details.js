@@ -45,6 +45,21 @@ function appendEventDetailsTo(entry, containerSelector, contract) {
     isEventClosed(entry.id, contract).then(isClosed => {
         if (isClosed) {
             $("<span>Registration closed</span><br/>").appendTo($("#details-" + entry.id));
+            if (isOrganizer(entry)) {
+                getEventParticipants(entry.id, contract).then(participants => {
+                    var web3 = new Web3(window.ethereum);
+                    web3.eth.net.getId().then(netId => {
+                        var etherScanUrl = etherScanUrlOf(netId);
+                        var participantsElement = `<ul id="participants-${entry.id}">Participants</ul>`;
+                        $(participantsElement).appendTo($("#details-" + entry.id));
+                        for (let i = 0; i < participants.length; i++) {
+                            var participant = participants[i];
+                            var addressNode = `<li><a target="_blank" href="${etherScanUrl + participant}">${addressLabelOf(participant, netId)}</a></li>`;
+                            $(addressNode).appendTo($("#participants-" + entry.id));
+                        }
+                    });
+                });
+            }
         } else if (isOrganizer(entry)) {
             var closeButton = `<button id="close-button-${entry.id}">Close registration</button>`;
             $(closeButton).appendTo("#details-" + entry.id);
@@ -66,6 +81,13 @@ function appendEventDetailsTo(entry, containerSelector, contract) {
             }
         }
     });
+}
+
+async function getEventParticipants(entryId, contract) {
+    contract = contract || await getContract(new Web3(window.ethereum));
+    let addresses = await contract.methods.getEventParticipants(entryId).call({ from: ethereum.selectedAddress });
+    console.log("Got participants, count=" + addresses.length);
+    return addresses;
 }
 
 async function getRegistrantsCount(entryId, contract) {
