@@ -1,0 +1,33 @@
+{
+  "name": "blockchain-developer-bootcamp-final-project",
+  "version": "1.0.0",
+  "description": "Bootcamp sample dapp",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "develop": "truffle develop",
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walaniam/blockchain-developer-bootcamp-final-project.git"
+  },
+  "keywords": [
+    "truffle",
+    "web3",
+    "ethereum"
+  ],
+  "author": "Mariusz Walania",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/walaniam/blockchain-developer-bootcamp-final-project/issues"
+  },
+  "homepage": "https://github.com/walaniam/blockchain-developer-bootcamp-final-project#readme",
+  "devDependencies": {
+    "@truffle/hdwallet-provider": "^1.6.0",
+    "dotenv": "^10.0.0",
+    "@openzeppelin/contracts": "^4.4.0"
+  }
+}
