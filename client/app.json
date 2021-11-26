@@ -1,6 +1,6 @@
 {
   "name": "Sign Me Up - Bootcamp Dapp",
-  "description": "A barebones Node.js app using Express 4",
+  "description": "Ethereum dapp using Express 4",
   "repository": "https://github.com/walaniam/blockchain-developer-bootcamp-final-project",
   "logo": "",
   "keywords": ["node", "express", "heroku", "web3", "ethereum"],
