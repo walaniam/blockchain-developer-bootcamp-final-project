@@ -14,7 +14,6 @@ async function createEvent(title, spots, registrationDate, eventDate, awaitCallb
       awaitCallback();
     })
     .on('confirmation', function(confirmationNumber, receipt) {
-      alert('conf');
       $('#mm-status').html("Confirmed: " + receipt);
     })
     .on('receipt', function(receipt) {
