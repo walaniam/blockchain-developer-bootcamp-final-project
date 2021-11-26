@@ -1,4 +1,4 @@
-function appendEventDetailsTo(entry, containerSelector) {
+function appendEventDetailsTo(entry, containerSelector, contract) {
 
     var row = `
     <div class="row" style="width: 100%;">
@@ -18,11 +18,11 @@ function appendEventDetailsTo(entry, containerSelector) {
 
     if (isOrganizer(entry)) {
         $('<div style="margin-top: 5px; margin-bottom: 5px;">You are organizer</div>').appendTo($('#details-' + entry.id));
-        getRegistrantsCount(entry.id).then(count => {
+        getRegistrantsCount(entry.id, contract).then(count => {
             $("#registered-count-" + entry.id).text(count.toString());
         });        
     } else {
-        isRegisteredForEntry(entry.id).then(isRegistered => {
+        isRegisteredForEntry(entry.id, contract).then(isRegistered => {
             if (isRegistered) {
                 $('<span style="margin-top: 10px;">Already registered</span><br/>').appendTo($('#details-' + entry.id));
             } else {
@@ -34,7 +34,7 @@ function appendEventDetailsTo(entry, containerSelector) {
                         $('#mm-status').html("Failed: " + err.message);
                     };
                     if (confirm("Register for event?")) {
-                        registerForEvent(eventId, errCallback)
+                        registerForEvent(eventId, errCallback, contract)
                             .catch(err => errCallback(err));
                     }
                 });
@@ -42,7 +42,7 @@ function appendEventDetailsTo(entry, containerSelector) {
         });
     }
 
-    isEventClosed(entry.id).then(isClosed => {
+    isEventClosed(entry.id, contract).then(isClosed => {
         if (isClosed) {
             $("<span>Registration closed</span><br/>").appendTo($("#details-" + entry.id));
         } else if (isOrganizer(entry)) {
@@ -56,7 +56,7 @@ function appendEventDetailsTo(entry, containerSelector) {
                         $('#mm-status').html("Failed: " + err.message);
                     };
                     if (confirm("Close event?")) {
-                        closeEvent(eventId, errCallback)
+                        closeEvent(eventId, errCallback, contract)
                             .catch(err => errCallback(err));
                     }
                 });
@@ -68,8 +68,8 @@ function appendEventDetailsTo(entry, containerSelector) {
     });
 }
 
-async function getRegistrantsCount(entryId) {
-    let contract = await getContract(new Web3(window.ethereum));
+async function getRegistrantsCount(entryId, contract) {
+    contract = contract || await getContract(new Web3(window.ethereum));
     let count = await contract.methods.getNumberOfRegisteredUsersForEvent(entryId).call({ from: ethereum.selectedAddress });
     console.log("registered for " + entryId + " count=" + count);
     return count;

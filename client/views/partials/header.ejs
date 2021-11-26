@@ -14,22 +14,24 @@
 <script>
   $(document).ready(function() {
 
-    getActiveEventsCount()
-        .then(result => $("#ctrt-value").html("Active events count: " + result));
+    getContract(new Web3(window.ethereum)).then(contract => {
+      getActiveEventsCount(contract)
+          .then(result => $("#ctrt-value").html("Active events count: " + result));
 
-    getFooterContent().then(element => {
-      $("#footer").append(element);
-    });
+      getFooterContent(contract).then(element => {
+        $("#footer").append(element);
+      });
 
-    getContractOwner().then(owner => {
-      if (owner.toLowerCase() == ethereum.selectedAddress.toLowerCase()) {
-        let priceNav = `
-          <li>
-            <a href="/set-price"><span class="glyphicon glyphicon-piggy-bank"></span> Set Price</a>
-          </li>
-        `;
-        $(priceNav).appendTo($('#nav-bar-main'));
-      }
+      getContractOwner(contract).then(owner => {
+        if (owner.toLowerCase() == ethereum.selectedAddress.toLowerCase()) {
+          let priceNav = `
+            <li>
+              <a href="/set-price"><span class="glyphicon glyphicon-piggy-bank"></span> Set Price</a>
+            </li>
+          `;
+          $(priceNav).appendTo($('#nav-bar-main'));
+        }
+      });
     });
 
     ethereum.on('chainChanged', (chainId) => {

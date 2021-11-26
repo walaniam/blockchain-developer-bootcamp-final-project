@@ -8,15 +8,17 @@
       var id = getUrlParam('id');
       console.log("Getting event details with id: " + id);
 
-      getEventById(id)
-        .then(entry => {
-          appendEventDetailsTo(entry, "#event-details");
-        })
-        .catch(err => {
-          let alert = $('<div class="alert alert-info text-center" role="alert">Event not found or not on chain yet. Try again later</div>');
-          alert.css('color', 'red');
-          alert.appendTo($("#event-details"));
-        });
+      getContract(new Web3(window.ethereum)).then(contract => {
+        getEventById(id, contract)
+          .then(entry => {
+            appendEventDetailsTo(entry, "#event-details", contract);
+          })
+          .catch(err => {
+            let alert = $('<div class="alert alert-info text-center" role="alert">Event not found or not on chain yet. Try again later</div>');
+            alert.css('color', 'red');
+            alert.appendTo($("#event-details"));
+          });
+      });
 
     });
   </script>

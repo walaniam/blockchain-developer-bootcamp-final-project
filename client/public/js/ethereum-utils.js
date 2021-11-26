@@ -19,23 +19,30 @@ async function detectMetamask() {
       }
     });
   });
-};
+}
   
 async function getContract(web3) {
-  const data = await $.getJSON("./contracts/SignMeUp.json");
-  const netId = await web3.eth.net.getId();
-  const deployedNetwork = data.networks[netId];
+  await loadContract(web3);
+  return window.signMeUpContract;
+}
 
-  //console.log('Contract address: ' + (deployedNetwork && deployedNetwork.address));
-
-  const signMeUp = new web3.eth.Contract(
-    data.abi,
-    deployedNetwork && deployedNetwork.address
-  );
-  signMeUp.setProvider(window.ethereum)
-
-  return signMeUp;
-};
+async function loadContract(web3) {
+  if (typeof window.signMeUpContract === 'undefined') {
+    const data = await $.getJSON("./contracts/SignMeUp.json");
+    const netId = await web3.eth.net.getId();
+    const deployedNetwork = data.networks[netId];
+    // console.log('Resolved contract. Address: ' + (deployedNetwork && deployedNetwork.address));
+    const signMeUp = new web3.eth.Contract(
+      data.abi,
+      deployedNetwork && deployedNetwork.address
+    );
+    signMeUp.setProvider(window.ethereum)
+  
+    window.signMeUpContract = signMeUp;
+  } else {
+    console.log("Contract cached");
+  }
+}
 
 function networkNameOf(networkId) {
   if (networkId == 1) {
@@ -69,6 +76,6 @@ function addressLabelOf(address, networkId) {
   } else {
     var addressSuffix = '';
   }
-  var label = `(${network}) ${addressPrefix}...${addressSuffix}`;
+  var label = `${addressPrefix}...${addressSuffix} (${network})`;
   return label;
 }
