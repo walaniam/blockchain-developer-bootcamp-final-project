@@ -4,21 +4,21 @@
   <%- include ("../partials/header.ejs") %>
   <script>
     $(document).ready(function() {
+      getContract(new Web3(window.ethereum)).then(contract => {
+        $('#tab1').click(function() {
+          showOrganizerEvents('#organized', contract);
+        });
 
-      $('#tab1').click(function() {
-        showOrganizerEvents('#organized');
+        $('#tab2').click(function() {
+          showRegistrantEvents('#registered', contract);
+        });
+
+        $('#tab3').click(function() {
+          showParticipantEvents('#participate', contract);
+        });
+
+        showOrganizerEvents('#organized', contract);
       });
-
-      $('#tab2').click(function() {
-        showRegistrantEvents('#registered');
-      });
-
-      $('#tab3').click(function() {
-        showParticipantEvents('#participate');
-      });
-
-      showOrganizerEvents('#organized');
-
     });
   </script>
 </head>

@@ -25,31 +25,30 @@ async function createEvent(title, spots, registrationDate, eventDate, awaitCallb
     .on('error', errorCallback);
 }
 
-async function closeEvent(eventId, errorCallback) {
-  let contract = await getContract(new Web3(window.ethereum));
+async function closeEvent(eventId, errorCallback, contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
   contract.methods
     .randomlyChooseEventParticipants(eventId)
     .send({from: ethereum.selectedAddress})
     .on('transactionHash', function(hash) {
       $('#mm-status').html("Transaction " + hash + " in progress. It may take up to few minutes to complete");
     })
-    .on('confirmation', function(confirmationNumber, receipt) {
-      alert('conf');
+    .on('confirmation', function(confirmationNumber, receipt) {      
       $('#mm-status').html("Confirmed: " + receipt);
     })
     .on('receipt', function(receipt) {
       console.log("Event closed: " + JSON.stringify(receipt));
       window.location = '/my-events';
     })
-    .on('error', errorCallback);    
+    .on('error', errorCallback);
 }
 
-async function showOrganizerEvents(containerSelector) {
+async function showOrganizerEvents(containerSelector, contract) {
 
   var container = $(containerSelector);
   container.empty();
 
-  var contract = await getContract(new Web3(window.ethereum));
+  contract = contract || await getContract(new Web3(window.ethereum));
   var entries = await contract.methods.getOrganizerEntries().call({from: ethereum.selectedAddress});
 
   console.log("Organizer events: " + JSON.stringify(entries));
@@ -59,25 +58,36 @@ async function showOrganizerEvents(containerSelector) {
   }
 
   for (let i = entries.length - 1; i >= 0 ; i--) {
-    appendEventDetailsTo(entries[i], containerSelector);
+    appendEventDetailsTo(entries[i], containerSelector, contract);
   }
 }
 
 ////// Registrant functions ///////
-async function registerForEvent(eventId) {
-  var contract = await getContract(new Web3(window.ethereum));
-  var transaction = await contract.methods.registerForEvent(eventId).send({from: ethereum.selectedAddress});
-  console.log(JSON.stringify(transaction));
-  return eventId;
+async function registerForEvent(eventId, errorCallback, contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
+  contract.methods
+    .registerForEvent(eventId)
+    .send({from: ethereum.selectedAddress})
+    .on('transactionHash', function(hash) {
+      $('#mm-status').html("Transaction " + hash + " in progress. It may take up to few minutes to complete");
+    })
+    .on('confirmation', function(confirmationNumber, receipt) {      
+      $('#mm-status').html("Confirmed: " + receipt);
+    })
+    .on('receipt', function(receipt) {
+      console.log("Registered for event: " + JSON.stringify(receipt));
+      window.location = '/event-details?id=' + eventId;
+    })
+    .on('error', errorCallback);    
 }
 
 ////// Participant functions ///////
-async function showParticipantEvents(containerSelector) {
+async function showParticipantEvents(containerSelector, contract) {
 
   var container = $(containerSelector);
   container.empty();
 
-  var contract = await getContract(new Web3(window.ethereum));
+  contract = contract || await getContract(new Web3(window.ethereum));
   var entryIds = await contract.methods.getEntriesUserSelectedFor().call({from: ethereum.selectedAddress});
 
   console.log("Participant events: " + JSON.stringify(entryIds));
@@ -87,18 +97,18 @@ async function showParticipantEvents(containerSelector) {
   }
 
   for (let i = entryIds.length - 1; i >= 0; i--) {
-    _eventById(entryIds[i], contract).then(entry => {
-      appendEventDetailsTo(entry, containerSelector);
+    getEventById(entryIds[i], contract).then(entry => {
+      appendEventDetailsTo(entry, containerSelector, contract);
     });
   }
 }
 
-async function showRegistrantEvents(containerSelector) {
+async function showRegistrantEvents(containerSelector, contract) {
 
   var container = $(containerSelector);
   container.empty();
 
-  var contract = await getContract(new Web3(window.ethereum));
+  contract = contract || await getContract(new Web3(window.ethereum));
   var entryIds = await contract.methods.getEntriesUserRegisteredFor().call({from: ethereum.selectedAddress});
 
   console.log("Registrant events: " + JSON.stringify(entryIds));
@@ -108,15 +118,15 @@ async function showRegistrantEvents(containerSelector) {
   }
 
   for (let i = entryIds.length - 1; i >= 0; i--) {
-    _eventById(entryIds[i], contract).then(entry => {
-      appendEventDetailsTo(entry, containerSelector);
+    getEventById(entryIds[i], contract).then(entry => {
+      appendEventDetailsTo(entry, containerSelector, contract);
     });
   }
 }
 
 ////// Read functions ///////
-async function getContractOwner() {
-  let contract = await getContract(new Web3(window.ethereum));
+async function getContractOwner(contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
   var owner = await contract.methods.owner().call();
   console.log("Owner: " + owner);
   return owner;
@@ -129,41 +139,36 @@ async function getEventPrice() {
   return price;
 }
 
-async function getActiveEventsCount() {
-  let contract = await getContract(new Web3(window.ethereum));
+async function getActiveEventsCount(contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
   var count = await contract.methods.getEntriesCount().call();
   console.log("Entries count: " + count);
   return count;
 }
 
-async function isRegisteredForEntry(eventId) {
-  let contract = await getContract(new Web3(window.ethereum));
+async function isRegisteredForEntry(eventId, contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
   let isRegistered = await contract.methods.isRegisteredForEntry(eventId).call({from: ethereum.selectedAddress});
   return isRegistered;
 }
 
-async function getEventById(eventId) {
-  let contract = await getContract(new Web3(window.ethereum));
-  return _eventById(eventId, contract);
-}
-
-async function _eventById(eventId, contract) {
+async function getEventById(eventId, contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
   let entry = await contract.methods.entries(eventId).call();
   console.log("got event for id=" + eventId + ", event=" + JSON.stringify(entry));
   return entry;
 }
 
-async function isEventClosed(eventId) {
-  let contract = await getContract(new Web3(window.ethereum));
+async function isEventClosed(eventId, contract) {
+  contract = contract || await getContract(new Web3(window.ethereum));
   let isClosed = await contract.methods.isEventClosed(eventId).call();
   console.log("event for id=" + eventId + ", closed=" + isClosed);
   return isClosed;
 }
 
 async function showActiveEvents(containerSelector) {
-  let contract = await getContract(new Web3(window.ethereum));
-  let count = await contract.methods.getEntriesCount().call();
-  
+  var contract = await getContract(new Web3(window.ethereum));
+  var count = await contract.methods.getEntriesCount().call();
   var anyAdded = false;
   for (let i = count - 1; i >= 0; i--) {
     var entry = await contract.methods.entries(i).call();
@@ -171,7 +176,7 @@ async function showActiveEvents(containerSelector) {
       continue;
     }
     anyAdded = true;
-    appendEventDetailsTo(entry, containerSelector);
+    appendEventDetailsTo(entry, containerSelector, contract);
   }
 
   if (!anyAdded) {
@@ -179,33 +184,25 @@ async function showActiveEvents(containerSelector) {
   }
 }
 
-async function getFooterContent() {
-  var web3 = await detectMetamask();
-  var contract = await getContract(web3);
+async function getFooterContent(contract) {
+  var web3 = new Web3(window.ethereum);
+  contract = contract || await getContract(web3);
   var owner = await contract.methods.owner().call();
   var netId = await web3.eth.net.getId();
   var address = contract.options.address;
   console.log('Contract address: ' + address);
   
-  if (netId == 1) {
-    var etherScanUrl = 'https://etherscan.io/address/';
-  } else if (netId == 3) {
-    var etherScanUrl = 'https://ropsten.etherscan.io/address/';
-  } else if (netId == 4) {
-    var etherScanUrl = 'https://rinkeby.etherscan.io/';
-  } else {
-    var etherScanUrl = '';
-  }
+  var etherScanUrl = etherScanUrlOf(netId);
 
   if (netId > 4) {
     var footerContent = `
-      <span>Contract owner: ${owner}</span><br/>
-      <span style="margin-top: 25px;">Contract address: ${address}</span>
+      <span>Contract owner: ${addressLabelOf(owner, netId)}</span><br/>
+      <span style="margin-top: 25px;">Contract address: ${addressLabelOf(address, netId)}</span>
     `;
   } else {
     var footerContent = `
-      <span>Contract owner: <a target="_blank" href="${etherScanUrl + owner}">${owner}</a></span><br/>
-      <span style="margin-top: 25px;">Contract address: <a target="_blank" href="${etherScanUrl + address}">${address}</a></span>
+      <span>Contract owner: <a target="_blank" href="${etherScanUrl + owner}">${addressLabelOf(owner, netId)}</a></span><br/>
+      <span style="margin-top: 25px;">Contract address: <a target="_blank" href="${etherScanUrl + address}">${addressLabelOf(address, netId)}</a></span>
     `;
   }
 

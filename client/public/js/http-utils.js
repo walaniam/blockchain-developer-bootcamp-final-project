@@ -23,7 +23,6 @@ function epochTimeNow() {
 }
 
 function formatDateOf(timestamp) {
-    // console.log("timestamp: " + timestamp);
     try {
         return new Date(timestamp * 1000).toLocaleString();
     } catch(err) {

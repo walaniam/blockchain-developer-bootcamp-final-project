@@ -2,12 +2,6 @@
 <html>
 <head>
   <%- include ("../partials/header.ejs") %>
-  <script>
-    $(document).ready(function() {
-      getActiveEventsCount()
-        .then(result => $("#ctrt-value").html("Active events count: " + result));
-    });
-  </script>
   <style>
     .info {
       height: 100%;

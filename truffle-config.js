@@ -22,7 +22,7 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       network_id: "*",
-      from: '0xfa5e6a302d3f8de3393d547c109867e8f497813f'
+      from: process.env.DEVELOP_FROM
     },
     ropsten: {
       provider: function() {
@@ -32,7 +32,7 @@ module.exports = {
           )
       },
       network_id: 3,
-      from: '0x1E779e81d7AB2441317E5acc60546b925DCAb923' // bootcamp2
+      from: process.env.ROPSTEN_FROM
     }
   },
   compilers: {
