@@ -38,13 +38,14 @@ Install metamask plugin for your browser. It's a crypto wallet that you'll need 
 
 The easiets way is to run it on some linux distribution or in case of Windows use [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) like [Ubuntu on WSL](https://ubuntu.com/wsl)
 
-Install [Node](https://nodejs.org/en/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), [heroku-cli](https://devcenter.heroku.com/articles/heroku-cli) and [truffle](https://www.trufflesuite.com/docs/truffle/getting-started/installation)
+Install [Node](https://nodejs.org/en/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), [heroku-cli (optional)](https://devcenter.heroku.com/articles/heroku-cli) and [truffle](https://www.trufflesuite.com/docs/truffle/getting-started/installation)
 
 This app has been tested with:
-- node v14.18.0
-- npm 6.14.15
-- truffle v5.4.19
-- Solidity 0.8.10
+- [node v14.18.0](https://nodejs.org/download/release/v14.18.0/)
+- [npm 6.14.15](https://docs.npmjs.com/cli/v6/commands/npm-install)
+- [truffle v5.4.19](https://www.trufflesuite.com/docs/truffle/getting-started/installation)
+- [Solidity 0.8.10](https://docs.soliditylang.org/en/v0.8.10/)
+- [heroku-cli 7.59.1](https://www.npmjs.com/package/heroku/v/7.59.1)
 
 ### Clone and setup the project
 Clone the project with
@@ -52,20 +53,20 @@ Clone the project with
 git clone git@github.com:walaniam/blockchain-developer-bootcamp-final-project.git
 ```
 
-In project root dir initialize node app
+In project root dir initialize truffle node app (solidity contracts)
 ```shell
 npm install
 ```
 
-Initialize client app
+Initialize client dapp
 ```shell
 cd client
 npm install
 ```
 
-## How to run on local blockchain network
-
-To start a local development blockchain network run following command in project root dir
+## Run local blockchain network
+### Initial run
+You need to initialize the network and set one of auto-created account addresses into .env file.
 
 ```
 npm start
@@ -74,19 +75,27 @@ npm start
 Once local network is started you'll see some sample accounts with their private keys that can be used locally.
 Import some of the private keys into your metamask browser plugin - you can then use these accounts for local development.  
 
-Create .env file in project root dir. Fill in one of the generated account address into this file.
+Create .env file in project root dir. Fill in one of the development account address into this file. This account will be the owner of deployed contract.
 ```shell
 # Account address of contract owner in develop network
 DEVELOP_FROM=<set one of the account addresses here>
 ```
 
+Stop the network by ctrl+c (or any other that exits the shell). You are now ready for the development.
+
+### Run network
+Start the network
+```
+npm start
+```
+In the network shell run
 ```
 migrate --network develop
 ```
 
 ## How to test the contracts
 
-To test contracts run following command in project root dir
+To test contracts run following command in project root dir. It uses default test network as desribed [here](https://www.trufflesuite.com/docs/truffle/testing/testing-your-contracts#command)
 ```
 npm test
 ```
@@ -97,6 +106,7 @@ In project root dir run below commands
 cd client
 npm start
 ```
+Then open in the browser http://localhost:5000/
 
 ## Migrate contract to ropsten network
 For ropsten development create .env_ropsten file in project dir with following variables
@@ -150,3 +160,7 @@ Check logs
 ```
 heroku logs --tail
 ```
+
+# About
+## My public Ethereum account
+https://etherscan.io/address/0x3A295cb57782AF8F032b9b06Be276908A3aeC5F6
