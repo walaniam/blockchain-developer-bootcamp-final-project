@@ -50455,8 +50455,8 @@
         }
       },
       "links": {},
-      "address": "0xe7a37F992bd08186D49155d3B0EDB1099611a658",
-      "transactionHash": "0xb8e8960fee12749c4b61498d5dd440778b92b387f75d000a584cbad040102130"
+      "address": "0x45e13027B7881c5a61dCCfb76aAb93d6Ed6C60D2",
+      "transactionHash": "0x2c8ed0a8f8cd5742e1391f1f72c17dd245b3348e97760a3c0e84a1b6699073fd"
     },
     "5777": {
       "events": {
@@ -50643,7 +50643,7 @@
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-27T09:14:52.917Z",
+  "updatedAt": "2021-11-27T09:55:43.448Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "Mariusz Walania",
